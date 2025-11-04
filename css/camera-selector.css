@@ -1,0 +1,98 @@
+/* Camera Selector Dropdown Styles */
+.camera-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #ffb6d9;
+    border-radius: 15px;
+    background: white;
+    color: #333;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 12px;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23ff1493' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 40px;
+}
+
+.camera-select:hover {
+    border-color: #ff69b4;
+    background-color: #fff5f9;
+    transform: translateY(-1px);
+}
+
+.camera-select:focus {
+    border-color: #ff1493;
+    box-shadow: 0 0 0 4px rgba(255, 105, 180, 0.15);
+}
+
+.camera-select option {
+    padding: 10px;
+    background: white;
+    color: #333;
+}
+
+.camera-select option:hover {
+    background: #ffe4f0;
+}
+
+.camera-select option[disabled] {
+    color: #999;
+    font-style: italic;
+}
+
+/* Refresh camera button */
+.refresh-camera-btn {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #ffb6d9;
+    border-radius: 15px;
+    background: white;
+    color: #ff1493;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.refresh-camera-btn:hover {
+    background: linear-gradient(135deg, #ff69b4, #ff1493);
+    color: white;
+    border-color: #ff1493;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 20, 147, 0.3);
+}
+
+.refresh-camera-btn i {
+    transition: transform 0.5s ease;
+}
+
+.refresh-camera-btn:hover i {
+    transform: rotate(360deg);
+}
+
+.refresh-camera-btn:active {
+    transform: scale(0.98) translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+    .camera-select {
+        padding: 10px 14px;
+        font-size: 0.9rem;
+    }
+    
+    .refresh-camera-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+}
+

@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>PhotoXinh - Capture Memories | Photobooth Online</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffc0cb 0%, #ff69b4 100%);
+            min-height: 100vh;
+        }
+        
+        .logo-text {
+            font-family: 'Brush Script MT', cursive, 'Comic Sans MS', sans-serif;
+            font-size: 3rem;
+            background: linear-gradient(45deg, #ff1493, #ff69b4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .subtitle {
+            color: #ff1493;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+        
+        #video, #canvas {
+            width: 100%;
+            height: auto;
+            border-radius: 15px;
+            background: #000;
+            transform: scaleX(-1);
+            transition: transform 0.3s ease;
+        }
+        
+        #video.flipped, #canvas.flipped {
+            transform: scaleX(1);
+        }
+        
+        #canvas { display: none; }
+        
+        .flip-camera-btn {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #ff1493;
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 20;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .flip-camera-btn:hover {
+            background: #ff1493;
+            color: white;
+            transform: scale(1.1) rotate(180deg);
+        }
+        
+        .flip-camera-btn:active {
+            transform: scale(0.95);
+        }
+        
+        #photoSlots {
+            display: grid;
+            gap: 12px;
+        }
+        
+        #photoSlots.layout-1x4 {
+            grid-template-columns: 1fr;
+            grid-template-rows: repeat(4, 1fr);
+        }
+        
+        #photoSlots.layout-2x2 {
+            grid-template-columns: repeat(2, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+        
+        #photoSlots.layout-2x3 {
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+        }
+        
+        .photo-slot {
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: linear-gradient(135deg, #ffe4f0 0%, #ffd6e8 100%);
+            border: 3px dashed #ff69b4;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Layout-specific aspect ratios */
+        #photoSlots.layout-1x4 .photo-slot {
+            /* Tỉ lệ 4:3 cho layout 1x4, giống như ảnh chụp */
+            aspect-ratio: 4/3;
+        }
+        
+        #photoSlots.layout-2x2 .photo-slot {
+            aspect-ratio: 1/1;  /* Square for 2x2 grid */
+        }
+        
+        #photoSlots.layout-2x3 .photo-slot {
+            aspect-ratio: 3/4;  /* Portrait for 2x3 grid */
+        }
+        
+        .photo-slot img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            transform: scaleX(-1);
+            transition: transform 0.3s ease;
+        }
+        
+        .photo-slot img.flipped {
+            transform: scaleX(1);
+        }
+        
+        .photo-slot.has-photo {
+            border-style: solid;
+            border-color: #ff1493;
+        }
+        
+        .photo-slot .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(255, 20, 147, 0.95);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            z-index: 5;
+            font-size: 1rem;
+            transition: all 0.3s;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .photo-slot.has-photo:hover .delete-btn {
+            display: flex;
+        }
+        
+        .photo-slot .delete-btn:hover {
+            background: #dc143c;
+            transform: scale(1.1);
+        }
+        
+        .photo-slot .swap-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(138, 43, 226, 0.95);
+            color: white;
+            border: none;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: none;
+            z-index: 5;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .photo-slot.has-photo:hover .swap-btn {
+            display: flex;
+        }
+        
+        .photo-slot .swap-btn:hover {
+            background: #6a1b9a;
+            transform: scale(1.1) rotate(180deg);
+        }
+        
+        .swap-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        
+        .swap-modal.active {
+            display: flex;
+        }
+        
+        .swap-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .swap-modal h3 {
+            color: #ff1493;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .swap-options {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .swap-option-btn {
+            padding: 15px;
+            border: 2px solid #ff69b4;
+            background: white;
+            color: #ff1493;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .swap-option-btn:hover {
+            background: #ffe4f0;
+            transform: translateY(-2px);
+        }
+        
+        .swap-option-btn.disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .btn-pink {
+            background: linear-gradient(135deg, #ff69b4 0%, #ff1493 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.3);
+        }
+        
+        .btn-pink:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 20, 147, 0.4);
+        }
+        
+        .btn-pink:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-capture {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 6px solid white;
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 6px 25px rgba(255, 20, 147, 0.4);
+        }
+        
+        .btn-capture:hover:not(:disabled) {
+            transform: scale(1.15);
+            box-shadow: 0 8px 35px rgba(255, 20, 147, 0.6);
+        }
+        
+        .btn-capture:active:not(:disabled) {
+            transform: scale(1.05);
+        }
+        
+        .btn-capture:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-capture::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90px;
+            height: 90px;
+            background: white;
+            border-radius: 50%;
+        }
+        
+        .btn-auto-capture {
+            width: 85px;
+            height: 85px;
+            border-radius: 50%;
+            border: 4px solid white;
+            background: linear-gradient(135deg, #9370DB, #8A2BE2);
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(138, 43, 226, 0.3);
+        }
+        
+        .btn-auto-capture:hover:not(:disabled) {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(138, 43, 226, 0.6);
+        }
+        
+        .btn-auto-capture:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .countdown-overlay {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 20, 147, 0.9);
+            padding: 15px 25px;
+            border-radius: 50px;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .countdown-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            animation: pulse 0.5s ease-in-out;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .filter-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn:hover {
+            transform: scale(1.1);
+            border-color: #ff1493;
+        }
+        
+        .filter-btn.active {
+            border-color: #ff1493;
+            box-shadow: 0 0 20px rgba(255, 20, 147, 0.5);
+        }
+        
+        .filter-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+        }
+        
+        .filter-name {
+            font-size: 0.65rem;
+            color: #999;
+            font-weight: 500;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .filter-item:hover .filter-name {
+            opacity: 1;
+        }
+        
+        .filter-btn.active + .filter-name {
+            color: #ff1493;
+            font-weight: bold;
+            opacity: 1;
+        }
+        
+        .layout-option {
+            padding: 10px 20px;
+            border-radius: 25px;
+            border: 2px solid #ff69b4;
+            background: white;
+            color: #ff1493;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+        
+        .layout-option:hover {
+            background: #ffe4f0;
+        }
+        
+        .layout-option.active {
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            color: white;
+            border-color: #ff1493;
+        }
+        
+        .menu-btn {
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .hidden { display: none !important; }
+        
+        /* Camera controls layout */
+        .camera-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 1rem;
+            width: 100%;
+            position: relative;
+        }
+        
+        .camera-controls > * {
+            flex-shrink: 0;
+        }
+        
+        /* Center the main capture button absolutely */
+        .btn-capture {
+            position: relative;
+        }
+        
+        /* Responsive Mobile Styles */
+        @media (max-width: 767px) {
+            .logo-text {
+                font-size: 2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            /* Stack camera controls vertically on mobile */
+            .camera-controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            /* Adjust button sizes for mobile */
+            .btn-capture {
+                width: 100px;
+                height: 100px;
+            }
+            
+            .btn-capture::before {
+                width: 75px;
+                height: 75px;
+            }
+            
+            .btn-auto-capture {
+                width: 55px;
+                height: 55px;
+                font-size: 1.2rem;
+            }
+            
+            .btn-pink {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            
+            /* Flip button adjustment */
+            .flip-camera-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+                top: 10px;
+                left: 10px;
+            }
+            
+            /* Photo slots responsive */
+            #photoSlots {
+                gap: 8px;
+            }
+            
+            /* Layout options wrapping */
+            .layout-option {
+                padding: 8px 15px;
+                font-size: 0.85rem;
+            }
+            
+            /* Filter buttons */
+            .filter-btn {
+                width: 45px;
+                height: 45px;
+            }
+            
+            .filter-name {
+                font-size: 0.6rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .logo-text {
+                font-size: 1.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .btn-capture {
+                width: 80px;
+                height: 80px;
+            }
+            
+            .btn-capture::before {
+                width: 60px;
+                height: 60px;
+            }
+            
+            .btn-auto-capture {
+                width: 50px;
+                height: 50px;
+                font-size: 1rem;
+            }
+            
+            .flip-camera-btn {
+                width: 35px;
+                height: 35px;
+                font-size: 1rem;
+                top: 8px;
+                left: 8px;
+            }
+            
+            #photoSlots {
+                gap: 6px;
+            }
+        }
+    </style>
+</head>
+<body class="p-4">
+    <!-- Header -->
+    <div class="text-center mb-6">
+        <h1 class="logo-text mb-2">PhotoXinh</h1>
+        <p class="subtitle">Capture Memories</p>
+    </div>
+
+    <div class="max-w-7xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <!-- Left Panel - Settings -->
+            <div class="space-y-4 md:col-span-3">
+                <!-- Layout -->
+                <div class="bg-white rounded-2xl p-4 shadow-lg">
+                    <h3 class="font-bold text-gray-700 mb-3">Layout Ảnh</h3>
+                    <div class="flex flex-wrap gap-2">
+                        <button class="layout-option active" data-layout="1x4" data-max="4">1×4</button>
+                        <button class="layout-option" data-layout="2x2" data-max="4">2×2</button>
+                        <button class="layout-option" data-layout="2x3" data-max="6">2×3</button>
+                    </div>
+                </div>
+
+                <!-- Countdown Timer -->
+                <div class="bg-white rounded-2xl p-4 shadow-lg">
+                    <h3 class="font-bold text-gray-700 mb-3">Đếm Ngược</h3>
+                    <div class="space-y-2">
+                        <button class="layout-option w-full" data-timer="0">Không</button>
+                        <div class="flex gap-2">
+                            <button class="layout-option active" data-timer="3">3s</button>
+                            <button class="layout-option" data-timer="5">5s</button>
+                            <button class="layout-option" data-timer="10">10s</button>
+                            <button class="layout-option" data-timer="15">15s</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="bg-white rounded-2xl p-4 shadow-lg">
+                    <h3 class="font-bold text-gray-700 mb-3">Bộ Lọc Màu</h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <div class="filter-item">
+                            <button class="filter-btn active" data-filter="none" style="background: linear-gradient(135deg, #fff, #f0f0f0);"></button>
+                            <span class="filter-name">Gốc</span>
+                        </div>
+                        <div class="filter-item">
+                            <button class="filter-btn" data-filter="grayscale" style="background: linear-gradient(135deg, #666, #999);"></button>
+                            <span class="filter-name">Đen Trắng</span>
+                        </div>
+                        <div class="filter-item">
+                            <button class="filter-btn" data-filter="sepia" style="background: linear-gradient(135deg, #8B7355, #D2B48C);"></button>
+                            <span class="filter-name">Sepia</span>
+                        </div>
+                        <div class="filter-item">
+                            <button class="filter-btn" data-filter="warm" style="background: linear-gradient(135deg, #FF8C00, #FFD700);"></button>
+                            <span class="filter-name">Ấm Áp</span>
+                        </div>
+                        <div class="filter-item">
+                            <button class="filter-btn" data-filter="cool" style="background: linear-gradient(135deg, #4682B4, #87CEEB);"></button>
+                            <span class="filter-name">Lạnh</span>
+                        </div>
+                        <div class="filter-item">
+                            <button class="filter-btn" data-filter="vintage" style="background: linear-gradient(135deg, #8B4513, #CD853F);"></button>
+                            <span class="filter-name">Vintage</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Center Panel - Camera -->
+            <div class="space-y-4 md:col-span-6">
+                <div class="bg-white rounded-2xl p-4 shadow-lg">
+                    <div class="relative">
+                        <video id="video" autoplay playsinline></video>
+                        <canvas id="canvas"></canvas>
+                        <button id="flipCameraBtn" class="flip-camera-btn hidden" title="Lật camera">
+                            <i class="fas fa-camera-rotate"></i>
+                        </button>
+                        <div id="countdown" class="countdown-overlay hidden">
+                            <div class="countdown-number" id="countdownNumber">3</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Camera Controls -->
+                    <div class="camera-controls">
+                        <button id="startCameraBtn" class="btn-pink">
+                            <i class="fas fa-video mr-2"></i>Bật Camera
+                        </button>
+                        <button id="autoCaptureBtn" class="btn-auto-capture hidden" title="Tự động chụp">
+                            <i class="fas fa-bolt"></i>
+                        </button>
+                        <button id="captureBtn" class="btn-capture hidden" title="Chụp ảnh"></button>
+                        <button id="resetBtn" class="btn-pink hidden">
+                            <i class="fas fa-redo mr-2"></i>Chụp Lại
+                        </button>
+                    </div>
+
+                    <!-- Options -->
+                    <div class="mt-4 flex items-center justify-center gap-4">
+                        <label class="flex items-center cursor-pointer">
+                            <input type="checkbox" id="videoRecap" class="mr-2">
+                            <span class="text-sm text-gray-600">Video Recap</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Download Button -->
+                <button id="downloadBtn" class="btn-pink w-full hidden">
+                    <i class="fas fa-download mr-2"></i>Tải Ảnh Lẻn
+                </button>
+            </div>
+
+            <!-- Right Panel - Photo Slots -->
+            <div class="space-y-4 md:col-span-3">
+                <div class="bg-white rounded-2xl p-4 shadow-lg">
+                    <h3 class="font-bold text-gray-700 mb-3">
+                        <span id="photoCount">0/4</span>
+                    </h3>
+                    <div id="photoSlots" class="layout-1x4">
+                        <div class="photo-slot" data-slot="0">
+                            <i class="fas fa-image text-pink-300 text-4xl"></i>
+                            <button class="delete-btn" onclick="deletePhoto(0)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button class="swap-btn" onclick="openSwapModal(0)">
+                                <i class="fas fa-arrows-rotate"></i>
+                            </button>
+                        </div>
+                        <div class="photo-slot" data-slot="1">
+                            <i class="fas fa-image text-pink-300 text-4xl"></i>
+                            <button class="delete-btn" onclick="deletePhoto(1)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button class="swap-btn" onclick="openSwapModal(1)">
+                                <i class="fas fa-arrows-rotate"></i>
+                            </button>
+                        </div>
+                        <div class="photo-slot" data-slot="2">
+                            <i class="fas fa-image text-pink-300 text-4xl"></i>
+                            <button class="delete-btn" onclick="deletePhoto(2)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button class="swap-btn" onclick="openSwapModal(2)">
+                                <i class="fas fa-arrows-rotate"></i>
+                            </button>
+                        </div>
+                        <div class="photo-slot" data-slot="3">
+                            <i class="fas fa-image text-pink-300 text-4xl"></i>
+                            <button class="delete-btn" onclick="deletePhoto(3)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button class="swap-btn" onclick="openSwapModal(3)">
+                                <i class="fas fa-arrows-rotate"></i>
+                            </button>
+                        </div>
+                        <div class="photo-slot hidden" data-slot="4">
+                            <i class="fas fa-image text-pink-300 text-4xl"></i>
+                            <button class="delete-btn" onclick="deletePhoto(4)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button class="swap-btn" onclick="openSwapModal(4)">
+                                <i class="fas fa-arrows-rotate"></i>
+                            </button>
+                        </div>
+                        <div class="photo-slot hidden" data-slot="5">
+                            <i class="fas fa-image text-pink-300 text-4xl"></i>
+                            <button class="delete-btn" onclick="deletePhoto(5)">
+                                <i class="fas fa-times"></i>
+                            </button>
+                            <button class="swap-btn" onclick="openSwapModal(5)">
+                                <i class="fas fa-arrows-rotate"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Swap Modal -->
+    <div id="swapModal" class="swap-modal">
+        <div class="swap-modal-content">
+            <h3>Chọn vị trí để hoán đổi</h3>
+            <div class="swap-options" id="swapOptions">
+                <!-- Options will be generated dynamically -->
+            </div>
+            <button class="btn-pink w-full" onclick="closeSwapModal()">Hủy</button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let stream = null;
+        let photos = [null, null, null, null, null, null];
+        let currentFilter = 'none';
+        let countdownTime = 3;
+        let maxPhotos = 4;
+        let currentLayout = '1x4';
+        let isAutoCapture = false;
+        let isCapturing = false;
+        let isFlipped = false;
+        let swapFromIndex = null;
+        
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Filter configurations
+        const filters = {
+            none: {},
+            grayscale: { filter: 'grayscale(100%)' },
+            sepia: { filter: 'sepia(100%)' },
+            warm: { filter: 'sepia(30%) saturate(1.4) brightness(1.1)' },
+            cool: { filter: 'hue-rotate(180deg) saturate(1.2)' },
+            vintage: { filter: 'sepia(50%) contrast(1.2) brightness(0.9)' }
+        };
+        
+        // Start camera
+        document.getElementById('startCameraBtn').addEventListener('click', async function() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: { ideal: 1280 }, height: { ideal: 960 } } 
+                });
+                video.srcObject = stream;
+                
+                video.addEventListener('loadedmetadata', () => {
+                    canvas.width = video.videoWidth;
+                    canvas.height = video.videoHeight;
+                });
+                
+                this.classList.add('hidden');
+                document.getElementById('captureBtn').classList.remove('hidden');
+                document.getElementById('autoCaptureBtn').classList.remove('hidden');
+                document.getElementById('flipCameraBtn').classList.remove('hidden');
+            } catch (err) {
+                alert('Không thể truy cập camera! Vui lòng cấp quyền.');
+            }
+        });
+        
+        // Flip camera button
+        document.getElementById('flipCameraBtn').addEventListener('click', function() {
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                video.classList.add('flipped');
+            } else {
+                video.classList.remove('flipped');
+            }
+        });
+        
+        // Auto capture button
+        document.getElementById('autoCaptureBtn').addEventListener('click', async function() {
+            if (isCapturing) return;
+            
+            const availableSlots = photos.filter(p => p === null).length;
+            if (availableSlots === 0) {
+                alert('Đã chụp đủ ảnh! Xóa ảnh hoặc nhấn "Chụp Lại".');
+                return;
+            }
+            
+            // Auto capture mode - chụp tất cả ảnh còn lại
+            this.disabled = true;
+            document.getElementById('captureBtn').disabled = true;
+            isCapturing = true;
+            
+            const photosToTake = Math.min(maxPhotos, availableSlots);
+            for (let i = 0; i < photosToTake; i++) {
+                if (countdownTime > 0) {
+                    await doCountdown();
+                }
+                await captureImage();
+                
+                // Nghỉ 0.5 giây giữa mỗi ảnh (trừ ảnh cuối)
+                if (i < photosToTake - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+            }
+            
+            isCapturing = false;
+            this.disabled = false;
+            document.getElementById('captureBtn').disabled = false;
+            
+            if (photos.filter(p => p !== null).length >= maxPhotos) {
+                this.classList.add('hidden');
+                document.getElementById('captureBtn').classList.add('hidden');
+                document.getElementById('resetBtn').classList.remove('hidden');
+                document.getElementById('downloadBtn').classList.remove('hidden');
+            }
+        });
+        
+        // Capture photo (single shot)
+        document.getElementById('captureBtn').addEventListener('click', async function() {
+            if (isCapturing) return;
+            
+            const availableSlots = photos.filter(p => p === null).length;
+            if (availableSlots === 0) {
+                alert('Đã chụp đủ ảnh! Xóa ảnh hoặc nhấn "Chụp Lại".');
+                return;
+            }
+            
+            // Manual single capture
+            this.disabled = true;
+            document.getElementById('autoCaptureBtn').disabled = true;
+            
+            if (countdownTime > 0) {
+                await doCountdown();
+            }
+            await captureImage();
+            
+            this.disabled = false;
+            document.getElementById('autoCaptureBtn').disabled = false;
+            
+            if (photos.filter(p => p !== null).length >= maxPhotos) {
+                this.classList.add('hidden');
+                document.getElementById('autoCaptureBtn').classList.add('hidden');
+                document.getElementById('resetBtn').classList.remove('hidden');
+                document.getElementById('downloadBtn').classList.remove('hidden');
+            }
+        });
+        
+        // Countdown function
+        async function doCountdown() {
+            const countdownEl = document.getElementById('countdown');
+            const numberEl = document.getElementById('countdownNumber');
+            countdownEl.classList.remove('hidden');
+            
+            for (let i = countdownTime; i > 0; i--) {
+                numberEl.textContent = i;
+                numberEl.style.animation = 'none';
+                setTimeout(() => numberEl.style.animation = 'pulse 0.5s ease-in-out', 10);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+            
+            countdownEl.classList.add('hidden');
+        }
+        
+        // Capture image function
+        async function captureImage() {
+            // Apply filter and capture
+            ctx.filter = filters[currentFilter].filter || 'none';
+            
+            // Always draw without flip to canvas (normal orientation)
+            ctx.save();
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            ctx.restore();
+            
+            ctx.filter = 'none';
+            
+            const photoData = canvas.toDataURL('image/png');
+            
+            // Find first empty slot
+            const emptyIndex = photos.findIndex(p => p === null);
+            if (emptyIndex !== -1) {
+                photos[emptyIndex] = photoData;
+            }
+            
+            // Update UI
+            updatePhotoSlots();
+            updatePhotoCount();
+        }
+        
+        // Delete photo function
+        window.deletePhoto = function(index) {
+            photos[index] = null;
+            updatePhotoSlots();
+            updatePhotoCount();
+            
+            // Show capture button again
+            document.getElementById('captureBtn').classList.remove('hidden');
+            document.getElementById('captureBtn').disabled = false;
+            
+            // Hide reset/download if no photos
+            if (photos.filter(p => p !== null).length === 0) {
+                document.getElementById('resetBtn').classList.add('hidden');
+                document.getElementById('downloadBtn').classList.add('hidden');
+            }
+        };
+        
+        // Reset
+        document.getElementById('resetBtn').addEventListener('click', function() {
+            photos = [null, null, null, null];
+            updatePhotoSlots();
+            updatePhotoCount();
+            document.getElementById('captureBtn').classList.remove('hidden');
+            document.getElementById('captureBtn').disabled = false;
+            this.classList.add('hidden');
+            document.getElementById('downloadBtn').classList.add('hidden');
+        });
+        
+        // Update photo slots
+        function updatePhotoSlots() {
+            const slots = document.querySelectorAll('.photo-slot');
+            slots.forEach((slot, index) => {
+                let img = slot.querySelector('img');
+                const deleteBtn = slot.querySelector('.delete-btn');
+                const swapBtn = slot.querySelector('.swap-btn');
+                
+                if (photos[index]) {
+                    if (!img) {
+                        img = document.createElement('img');
+                        slot.innerHTML = '';
+                        slot.appendChild(img);
+                        slot.appendChild(deleteBtn);
+                        slot.appendChild(swapBtn);
+                    }
+                    img.src = photos[index];
+                    
+                    // Apply flip state to image to match video orientation
+                    if (isFlipped) {
+                        img.classList.add('flipped');
+                    } else {
+                        img.classList.remove('flipped');
+                    }
+                    
+                    slot.classList.add('has-photo');
+                } else {
+                    slot.innerHTML = '<i class="fas fa-image text-pink-300 text-4xl"></i>';
+                    slot.appendChild(deleteBtn);
+                    slot.appendChild(swapBtn);
+                    slot.classList.remove('has-photo');
+                }
+            });
+        }
+        
+        // Update photo count
+        function updatePhotoCount() {
+            const count = photos.filter(p => p !== null).length;
+            document.getElementById('photoCount').textContent = `${count}/${maxPhotos}`;
+        }
+        
+        // Filter selection
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                
+                // Apply filter to video preview
+                video.style.filter = filters[currentFilter].filter || 'none';
+            });
+        });
+        
+        // Layout selection
+        document.querySelectorAll('.layout-option[data-layout]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.layout-option[data-layout]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Layout selection
+        document.querySelectorAll('.layout-option[data-layout]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.layout-option[data-layout]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                
+                const layout = this.dataset.layout;
+                const newMax = parseInt(this.dataset.max);
+                
+                // Update layout
+                currentLayout = layout;
+                maxPhotos = newMax;
+                
+                // Reset photos array
+                photos = new Array(6).fill(null);
+                
+                // Update grid class
+                const photoSlots = document.getElementById('photoSlots');
+                photoSlots.className = `layout-${layout}`;
+                
+                // Show/hide slots based on layout
+                const allSlots = document.querySelectorAll('.photo-slot');
+                allSlots.forEach((slot, index) => {
+                    if (index < maxPhotos) {
+                        slot.classList.remove('hidden');
+                    } else {
+                        slot.classList.add('hidden');
+                    }
+                });
+                
+                // Update UI
+                updatePhotoSlots();
+                updatePhotoCount();
+                
+                // Reset buttons
+                document.getElementById('captureBtn').classList.remove('hidden');
+                document.getElementById('autoCaptureBtn').classList.remove('hidden');
+                document.getElementById('resetBtn').classList.add('hidden');
+                document.getElementById('downloadBtn').classList.add('hidden');
+            });
+        });
+        
+        // Timer selection
+        document.querySelectorAll('.layout-option[data-timer]').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.layout-option[data-timer]').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                countdownTime = parseInt(this.dataset.timer);
+            });
+        });
+        
+        // Download all photos
+        document.getElementById('downloadBtn').addEventListener('click', async function() {
+            // Create combined image
+            const combinedCanvas = document.createElement('canvas');
+            const combinedCtx = combinedCanvas.getContext('2d');
+            
+            const cellWidth = canvas.width;
+            const cellHeight = canvas.height;
+            
+            // Set canvas size based on layout
+            if (currentLayout === '1x4') {
+                // 1 column, 4 rows - vertical strip
+                combinedCanvas.width = cellWidth;
+                combinedCanvas.height = cellHeight * 4;
+            } else if (currentLayout === '2x2') {
+                // 2x2 grid
+                combinedCanvas.width = cellWidth * 2;
+                combinedCanvas.height = cellHeight * 2;
+            } else if (currentLayout === '2x3') {
+                // 2 rows, 3 columns
+                combinedCanvas.width = cellWidth * 3;
+                combinedCanvas.height = cellHeight * 2;
+            }
+            
+            // Background
+            combinedCtx.fillStyle = '#ffe4f0';
+            combinedCtx.fillRect(0, 0, combinedCanvas.width, combinedCanvas.height);
+            
+            // Add photos based on layout
+            const validPhotos = photos.filter(p => p !== null);
+            for (let i = 0; i < validPhotos.length; i++) {
+                const img = new Image();
+                img.src = validPhotos[i];
+                await new Promise(resolve => {
+                    img.onload = () => {
+                        let x, y;
+                        
+                        if (currentLayout === '1x4') {
+                            // Vertical layout: stack from top to bottom
+                            x = 0;
+                            y = i * cellHeight;
+                        } else if (currentLayout === '2x2') {
+                            // 2x2 grid: left to right, top to bottom
+                            x = (i % 2) * cellWidth;
+                            y = Math.floor(i / 2) * cellHeight;
+                        } else if (currentLayout === '2x3') {
+                            // 2x3 grid: 3 columns, 2 rows
+                            x = (i % 3) * cellWidth;
+                            y = Math.floor(i / 3) * cellHeight;
+                        }
+                        
+                        combinedCtx.drawImage(img, x, y, cellWidth, cellHeight);
+                        
+                        // Border
+                        combinedCtx.strokeStyle = '#ff69b4';
+                        combinedCtx.lineWidth = 5;
+                        combinedCtx.strokeRect(x, y, cellWidth, cellHeight);
+                        resolve();
+                    };
+                });
+            }
+            
+            // Download
+            const link = document.createElement('a');
+            link.download = `photobooth-${currentLayout}-${Date.now()}.png`;
+            link.href = combinedCanvas.toDataURL('image/png');
+            link.click();
+        });
+        
+        // Cleanup on exit
+        window.addEventListener('beforeunload', () => {
+            if (stream) stream.getTracks().forEach(track => track.stop());
+        });
+        
+        // Swap photo functions
+        window.openSwapModal = function(fromIndex) {
+            if (!photos[fromIndex]) return; // Can't swap empty slot
+            
+            swapFromIndex = fromIndex;
+            const modal = document.getElementById('swapModal');
+            const optionsContainer = document.getElementById('swapOptions');
+            optionsContainer.innerHTML = '';
+            
+            // Generate swap options
+            for (let i = 0; i < maxPhotos; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'swap-option-btn';
+                btn.textContent = `Ảnh ${i + 1}`;
+                
+                // Disable current photo and empty slots
+                if (i === fromIndex || !photos[i]) {
+                    btn.classList.add('disabled');
+                } else {
+                    btn.onclick = () => swapPhotos(fromIndex, i);
+                }
+                
+                optionsContainer.appendChild(btn);
+            }
+            
+            modal.classList.add('active');
+        };
+        
+        window.closeSwapModal = function() {
+            const modal = document.getElementById('swapModal');
+            modal.classList.remove('active');
+            swapFromIndex = null;
+        };
+        
+        function swapPhotos(fromIndex, toIndex) {
+            if (fromIndex === toIndex) return;
+            
+            // Add animation class
+            const slots = document.querySelectorAll('.photo-slot');
+            slots[fromIndex].style.transform = 'scale(0.8)';
+            slots[toIndex].style.transform = 'scale(0.8)';
+            
+            setTimeout(() => {
+                if (fromIndex < toIndex) {
+                    // Moving down: shift photos between from and to up by one position
+                    const temp = photos[fromIndex];
+                    for (let i = fromIndex; i < toIndex; i++) {
+                        photos[i] = photos[i + 1];
+                    }
+                    photos[toIndex] = temp;
+                } else {
+                    // Moving up: shift photos between to and from down by one position
+                    const temp = photos[fromIndex];
+                    for (let i = fromIndex; i > toIndex; i--) {
+                        photos[i] = photos[i - 1];
+                    }
+                    photos[toIndex] = temp;
+                }
+                
+                updatePhotoSlots();
+                
+                // Reset animation
+                slots.forEach(slot => {
+                    slot.style.transform = 'scale(1)';
+                });
+                
+                closeSwapModal();
+            }, 300);
+        }
+        
+        // Add transition to photo slots
+        document.querySelectorAll('.photo-slot').forEach(slot => {
+            slot.style.transition = 'transform 0.3s ease';
+        });
+    </script>
+</body>
+</html>

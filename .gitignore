@@ -1,0 +1,14 @@
+# HTTrack files
+hts-cache/
+cookies.txt
+hts-log.txt
+*.gif
+
+# Old files
+photo.freehihi.com/
+cdn-icons-png.flaticon.com/
+cdn.jsdelivr.net/
+cdnjs.cloudflare.com/
+
+# Vercel
+.vercel

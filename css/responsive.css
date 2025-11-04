@@ -1,0 +1,157 @@
+/* Responsive Mobile Styles */
+@media (max-width: 767px) {
+    .logo-text {
+        font-size: 2rem;
+    }
+    
+    .subtitle {
+        font-size: 1.2rem;
+    }
+    
+    /* Stack camera controls vertically on mobile */
+    .camera-controls {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    /* Adjust button sizes for mobile */
+    .btn-capture {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .btn-capture::before {
+        width: 75px;
+        height: 75px;
+    }
+    
+    .btn-auto-capture {
+        width: 55px;
+        height: 55px;
+        font-size: 1.2rem;
+    }
+    
+    .btn-pink {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+    }
+    
+    /* Flip button adjustment */
+    .flip-camera-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1.1rem;
+        top: 10px;
+        left: 10px;
+    }
+    
+    /* Photo slots responsive */
+    #photoSlots {
+        gap: 8px;
+    }
+    
+    /* Layout options wrapping */
+    .layout-option {
+        padding: 8px 15px;
+        font-size: 0.85rem;
+    }
+    
+    /* Filter buttons */
+    .filter-btn {
+        width: 45px;
+        height: 45px;
+    }
+    
+    .filter-name {
+        font-size: 0.6rem;
+    }
+    
+    /* Modern filter grid */
+    .modern-filter-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+    }
+    
+    .modern-filter-btn .filter-preview {
+        height: 40px;
+    }
+    
+    .modern-filter-btn span {
+        padding: 6px 2px;
+        font-size: 0.7rem;
+    }
+    
+    /* Timer grid */
+    .timer-grid {
+        gap: 8px;
+    }
+    
+    .timer-btn {
+        padding: 10px 6px;
+        font-size: 0.8rem;
+    }
+    
+    .timer-btn i {
+        font-size: 1.1rem;
+    }
+    
+    /* Custom timer input */
+    .custom-timer-number {
+        width: 70px;
+        padding: 6px 10px;
+        font-size: 0.9rem;
+    }
+    
+    .btn-apply-custom {
+        padding: 6px 12px;
+        font-size: 0.85rem;
+    }
+    
+    /* Settings card */
+    .settings-card {
+        padding: 15px;
+    }
+    
+    .settings-title {
+        font-size: 1rem;
+        margin-bottom: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-text {
+        font-size: 1.5rem;
+    }
+    
+    .subtitle {
+        font-size: 1rem;
+    }
+    
+    .btn-capture {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .btn-capture::before {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .btn-auto-capture {
+        width: 50px;
+        height: 50px;
+        font-size: 1rem;
+    }
+    
+    .flip-camera-btn {
+        width: 35px;
+        height: 35px;
+        font-size: 1rem;
+        top: 8px;
+        left: 8px;
+    }
+    
+    #photoSlots {
+        gap: 6px;
+    }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "photoxinh-photobooth",
+  "version": "1.0.0",
+  "description": "📸 Ứng dụng chụp ảnh online với nhiều hiệu ứng và bộ lọc màu xinh xắn",
+  "main": "index.html",
+  "scripts": {
+    "dev": "python -m http.server 8000",
+    "start": "python -m http.server 8000"
+  },
+  "keywords": [
+    "photobooth",
+    "camera",
+    "photo",
+    "filters",
+    "webrtc"
+  ],
+  "author": "PhotoXinh Team",
+  "license": "MIT"
+}

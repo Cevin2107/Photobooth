@@ -1,0 +1,132 @@
+/* Filter Compact Styles */
+.filter-card {
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.filter-compact-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+}
+
+.filter-compact-item {
+    position: relative;
+    height: 60px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.filter-compact-item:hover {
+    transform: scale(1.05);
+    z-index: 10;
+}
+
+.filter-compact-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    opacity: 0.8;
+    transition: all 0.3s;
+}
+
+.filter-compact-item:hover .filter-compact-bg {
+    opacity: 1;
+}
+
+.filter-compact-label {
+    position: relative;
+    z-index: 2;
+    color: white;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    opacity: 0.9;
+    transition: all 0.3s;
+}
+
+.filter-compact-item:hover .filter-compact-label {
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+.filter-compact-item.active {
+    box-shadow: inset 0 0 0 3px #ff1493;
+}
+
+.filter-compact-item.active .filter-compact-label {
+    font-size: 0.95rem;
+    text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+}
+
+/* First item top-left rounded */
+.filter-compact-item:first-child {
+    border-top-left-radius: 20px;
+}
+
+/* Third item top-right rounded */
+.filter-compact-item:nth-child(3) {
+    border-top-right-radius: 20px;
+}
+
+/* Fourth item bottom-left rounded */
+.filter-compact-item:nth-child(4) {
+    border-bottom-left-radius: 20px;
+}
+
+/* Last item bottom-right rounded */
+.filter-compact-item:last-child {
+    border-bottom-right-radius: 20px;
+}
+
+/* Old filter styles - keep for backward compatibility */
+.filter-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    border: 3px solid transparent;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.filter-btn:hover {
+    transform: scale(1.1);
+    border-color: #ff1493;
+}
+
+.filter-btn.active {
+    border-color: #ff1493;
+    box-shadow: 0 0 20px rgba(255, 20, 147, 0.5);
+}
+
+.filter-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+}
+
+.filter-name {
+    font-size: 0.65rem;
+    color: #999;
+    font-weight: 500;
+    text-align: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.filter-item:hover .filter-name {
+    opacity: 1;
+}
+
+.filter-btn.active + .filter-name {
+    color: #ff1493;
+    font-weight: bold;
+    opacity: 1;
+}

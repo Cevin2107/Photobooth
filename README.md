@@ -1,8 +1,207 @@
-# 📸 Photobooth Online# 📸 BinCun Photo - Photobooth Online# 📸 PhotoXinh - Photobooth Online# 📸 PhotoXinh - Photobooth Online
-
-
+# 📸 PhotoXinh - Photobooth Online
 
 Ứng dụng chụp ảnh photobooth trực tuyến với nhiều hiệu ứng, layout và frames đẹp mắt.
+
+![Photobooth Demo](https://img.shields.io/badge/Status-Active-success)
+![License](https://img.shields.io/badge/License-MIT-blue)
+
+## ✨ Tính năng
+
+- � **Chụp ảnh từ webcam** - Hỗ trợ chọn camera (bao gồm Phone Link)
+- 🎨 **6 bộ lọc màu** - Gốc, Đen Trắng, Sepia, Ấm Áp, Lạnh, Vintage
+- 📐 **3 layout** - 1×4 (vertical) / 2×2 (portrait grid) / 2×3 (landscape grid)
+- 🖼️ **100+ frames đa dạng** - Import frames từ freehihi.com dễ dàng
+- ⏱️ **Đếm ngược tùy chỉnh** - 0s / 3s / 5s / 10s / 15s hoặc custom
+- 🔄 **Hoán đổi ảnh** - Kéo thả để đổi vị trí
+- 🗑️ **Xóa từng ảnh** - Chụp lại ảnh nào không đẹp
+- ⚡ **Chụp tự động** - Tự động chụp tất cả ảnh liên tiếp
+- 💾 **Tải về** - Download ảnh ghép với frame chất lượng cao
+- 📱 **Responsive** - Hoạt động tốt trên mobile
+
+## 🚀 Quick Start
+
+### Cách 1: Python Server (Đơn giản nhất)
+
+```bash
+cd Photobooth
+python -m http.server 8000
+```
+
+Mở trình duyệt: `http://localhost:8000`
+
+### Cách 2: Live Server (VS Code)
+
+1. Install extension "Live Server"
+2. Right-click `index.html` → "Open with Live Server"
+
+### Cách 3: Node.js
+
+```bash
+npx http-server
+```
+
+## � Cấu trúc Project
+
+```
+Photobooth/
+├── index.html                      # HTML chính
+├── vercel.json                     # Vercel config
+├── css/                            # Stylesheets
+│   ├── main.css                    # Global styles
+│   ├── camera.css                  # Camera & video
+│   ├── filters.css                 # Bộ lọc
+│   ├── frames.css                  # Frame styles
+│   ├── camera-selector.css         # Camera dropdown
+│   └── responsive.css              # Mobile responsive
+├── js/                             # JavaScript modules
+│   ├── app.js                      # Entry point
+│   ├── config.js                   # Config & state
+│   ├── camera.js                   # Camera control
+│   ├── camera-selector.js          # Camera selector
+│   ├── capture.js                  # Photo capture
+│   ├── filters.js                  # Filter management
+│   ├── layouts.js                  # Layout switching
+│   ├── ui.js                       # UI updates
+│   ├── default-frames.js           # Default frames data
+│   └── frames/                     # Frame management
+│       ├── frames.js               # Frame loader
+│       ├── frame-positions-1x4.js  # 1x4 positions
+│       ├── frame-positions-2x2.js  # 2x2 positions
+│       └── frame-positions-2x3.js  # 2x3 positions
+├── tools/                          # Developer tools
+│   └── frame-detector/             # Frame position detector
+│       ├── detector-1x4.html
+│       ├── detector-2x2.html
+│       └── detector-2x3.html
+├── DEPLOY.md                       # Deploy guide
+└── README.md                       # This file
+```
+
+## 🏗️ Kiến trúc Code
+
+### Module Pattern
+
+Code được tách thành các module nhỏ, mỗi module có trách nhiệm riêng:
+
+- **config.js** - Quản lý state toàn cục
+- **camera.js** - Xử lý camera (getUserMedia, flip, stop)
+- **camera-selector.js** - Dropdown chọn camera
+- **capture.js** - Logic chụp ảnh với crop theo layout
+- **filters.js** - Quản lý bộ lọc màu
+- **layouts.js** - Chuyển đổi layout & countdown
+- **frames.js** - Quản lý frames & positions
+- **ui.js** - Cập nhật giao diện
+- **app.js** - Entry point, khởi tạo app
+
+### ES6 Modules
+
+```javascript
+// Export từ module
+export function startCamera() { ... }
+
+// Import vào module khác
+import { startCamera } from './camera.js';
+```
+
+### State Management
+
+```javascript
+const STATE = {
+    stream: null,
+    photos: [null, null, null, null, null, null],
+    currentFilter: 'none',
+    currentLayout: '1x4',
+    selectedDeviceId: null,
+    // ...
+};
+```
+
+## 🎯 Workflow chụp ảnh
+
+### Layout 2x2 & 2x3
+
+1. **Video Preview Crop** - Camera preview tự động crop để match tỷ lệ frame
+   - 2x2: Tỷ lệ 3:4 (dọc/portrait) → video "gầy" đi
+   - 2x3: Tỷ lệ 522:391 (ngang/landscape) → video rộng hơn
+
+2. **Photo Capture Crop** - Ảnh chụp được crop từ vùng giữa camera
+   - Tính toán aspect ratio target
+   - Crop vùng giữa để match với khung frame
+   - Canvas resize theo vùng cropped
+
+3. **Frame Overlay** - Ghép ảnh vào frame với positions chính xác
+   - centerX: false → dùng X positions chính xác (cho grid 2x2, 2x3)
+   - centerX: true → center horizontally (cho vertical 1x4)
+
+## 🔧 Developer Tools
+
+### Frame Position Detector
+
+Tool tự động phát hiện vị trí khung ảnh trong frame:
+
+- `tools/frame-detector/detector-1x4.html` - Cho layout 1x4
+- `tools/frame-detector/detector-2x2.html` - Cho layout 2x2
+- `tools/frame-detector/detector-2x3.html` - Cho layout 2x3
+
+**Tính năng:**
+- ✅ Auto-detect transparent areas
+- ✅ Manual editor với drag & drop
+- ✅ Apply Standard Size button
+- ✅ Export JSON positions
+- ✅ Support cả frames nhỏ & lớn (aspect ratio matching)
+
+## 📦 Dependencies
+
+- TailwindCSS 2.2.19 (CDN)
+- Font Awesome 6.5.0 (CDN)
+
+## 🚀 Deploy lên Vercel
+
+Xem hướng dẫn chi tiết trong file [`DEPLOY.md`](./DEPLOY.md)
+
+### Quick Deploy
+
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Login
+vercel login
+
+# Deploy
+vercel --prod
+```
+
+## 🔒 Requirements
+
+- Trình duyệt hỗ trợ WebRTC (Chrome, Firefox, Safari, Edge)
+- Cho phép truy cập camera
+- HTTPS (bắt buộc khi deploy - Vercel tự động enable)
+
+## 🔮 Roadmap
+
+- [x] Multiple layouts (1x4, 2x2, 2x3)
+- [x] Camera selector với Phone Link support
+- [x] Frame position detector tools
+- [x] Auto crop ảnh theo tỷ lệ frame
+- [ ] Thêm stickers/overlays
+- [ ] Video recording
+- [ ] Share social media
+- [ ] PWA support
+- [ ] Backend upload & gallery
+
+## 📝 License
+
+MIT License - Made with 💖 by PhotoXinh Team
+
+## 🤝 Contributing
+
+Contributions, issues and feature requests are welcome!
+
+---
+
+⭐ Star repo nếu bạn thấy hữu ích!
+
 
 
 

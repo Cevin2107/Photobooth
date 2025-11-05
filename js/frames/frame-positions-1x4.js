@@ -2795,6 +2795,62 @@ export const FRAME_POSITIONS_1X4 = {
       }
     ]
   },
+  "https://cdn.freehihi.com/690b8d0612949.png": {
+    "photoSize": {
+      "width": 761,
+      "height": 564
+    },
+    "positions": [
+      {
+        "x": 44,
+        "y": 52,
+        "centerX": true
+      },
+      {
+        "x": 44,
+        "y": 644,
+        "centerX": true
+      },
+      {
+        "x": 44,
+        "y": 1235,
+        "centerX": true
+      },
+      {
+        "x": 44,
+        "y": 1827,
+        "centerX": true
+      }
+    ]
+  },
+  "https://cdn.freehihi.com/690b83c2b46f0.png": {
+    "photoSize": {
+      "width": 771,
+      "height": 565
+    },
+    "positions": [
+      {
+        "x": 54,
+        "y": 64,
+        "centerX": true
+      },
+      {
+        "x": 54,
+        "y": 676,
+        "centerX": true
+      },
+      {
+        "x": 54,
+        "y": 1288,
+        "centerX": true
+      },
+      {
+        "x": 54,
+        "y": 1900,
+        "centerX": true
+      }
+    ]
+  },
 };
 
 export const STANDARD_CONFIG_1X4 = {

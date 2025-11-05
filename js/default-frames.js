@@ -670,6 +670,16 @@ export const DEFAULT_FRAMES_JSON = [
     "url": "https://cdn.freehihi.com/68529ba92966b.png",
     "index": 14
   },
+  {
+    "name": "Dáng Xinh Bùi Công Nam (gốc)",
+    "url": "https://cdn.freehihi.com/690b8d0612949.png",
+    "index": 8
+  },
+  {
+    "name": "Soobin (gốc)",
+    "url": "https://cdn.freehihi.com/690b83c2b46f0.png",
+    "index": 36
+  },
 ];
 
 // ============================================

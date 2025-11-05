@@ -1,0 +1,5 @@
+# Vercel sẽ deploy tất cả files, bao gồm cả tools
+# File này để reference, không ignore gì cả
+
+# Nếu muốn ẩn tools, uncomment dòng dưới:
+# tools/

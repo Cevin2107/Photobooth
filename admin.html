@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🛠️ Photobooth Admin Tools</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .tool-card {
+            transition: all 0.3s;
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body class="p-8">
+    <div class="max-w-6xl mx-auto">
+        <div class="text-center mb-12">
+            <h1 class="text-5xl font-bold text-white mb-4">
+                <i class="fas fa-tools"></i> Photobooth Admin Tools
+            </h1>
+            <p class="text-white text-xl opacity-90">
+                Developer tools để quản lý frames và detect positions
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Detector 1x4 -->
+            <a href="tools/frame-detector/detector-1x4.html" class="tool-card block">
+                <div class="text-center">
+                    <div class="text-5xl mb-4">📏</div>
+                    <h2 class="text-2xl font-bold mb-2 text-purple-600">
+                        Detector 1×4
+                    </h2>
+                    <p class="text-gray-600 mb-4">
+                        Auto-detect positions cho layout 1×4 (vertical)
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-arrow-down"></i> Vertical layout<br>
+                        4 slots, centered horizontally
+                    </div>
+                </div>
+            </a>
+
+            <!-- Detector 2x2 -->
+            <a href="tools/frame-detector/detector-2x2.html" class="tool-card block">
+                <div class="text-center">
+                    <div class="text-5xl mb-4">📐</div>
+                    <h2 class="text-2xl font-bold mb-2 text-pink-600">
+                        Detector 2×2
+                    </h2>
+                    <p class="text-gray-600 mb-4">
+                        Auto-detect positions cho layout 2×2 (grid portrait)
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-th"></i> Grid 2×2<br>
+                        4 slots, exact X positions
+                    </div>
+                </div>
+            </a>
+
+            <!-- Detector 2x3 -->
+            <a href="tools/frame-detector/detector-2x3.html" class="tool-card block">
+                <div class="text-center">
+                    <div class="text-5xl mb-4">📊</div>
+                    <h2 class="text-2xl font-bold mb-2 text-blue-600">
+                        Detector 2×3
+                    </h2>
+                    <p class="text-gray-600 mb-4">
+                        Auto-detect positions cho layout 2×3 (grid landscape)
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-th-large"></i> Grid 2×3<br>
+                        6 slots, exact X positions
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="tool-card mb-8">
+            <h2 class="text-2xl font-bold mb-4 text-purple-600">
+                <i class="fas fa-book"></i> Hướng dẫn sử dụng
+            </h2>
+            <ol class="space-y-3 text-gray-700">
+                <li>
+                    <strong>1. Chọn detector</strong> theo layout bạn muốn detect (1×4, 2×2, hoặc 2×3)
+                </li>
+                <li>
+                    <strong>2. Auto-detect</strong> - Tool sẽ tự động scan tất cả frames và phát hiện vị trí khung ảnh
+                </li>
+                <li>
+                    <strong>3. Manual edit</strong> - Nếu auto-detect fail, có thể edit thủ công bằng drag & drop
+                </li>
+                <li>
+                    <strong>4. Copy JSON</strong> - Click "Copy Result JSON" để copy toàn bộ config
+                </li>
+                <li>
+                    <strong>5. Update code</strong> - Paste vào file tương ứng:
+                    <ul class="ml-6 mt-2 text-sm">
+                        <li>→ <code class="bg-gray-100 px-2 py-1 rounded">js/frames/frame-positions-1x4.js</code></li>
+                        <li>→ <code class="bg-gray-100 px-2 py-1 rounded">js/frames/frame-positions-2x2.js</code></li>
+                        <li>→ <code class="bg-gray-100 px-2 py-1 rounded">js/frames/frame-positions-2x3.js</code></li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>6. Deploy</strong> - Push code lên GitHub, Vercel sẽ tự động deploy
+                </li>
+            </ol>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="tool-card">
+                <h3 class="text-xl font-bold mb-3 text-purple-600">
+                    <i class="fas fa-info-circle"></i> Frame Layouts
+                </h3>
+                <ul class="space-y-2 text-gray-700 text-sm">
+                    <li><strong>1×4:</strong> 880×2650px, 4 slots vertical, centerX: true</li>
+                    <li><strong>2×2:</strong> 1140×1613px, 4 slots grid, centerX: false</li>
+                    <li><strong>2×3:</strong> 1120×1368px, 6 slots grid, centerX: false</li>
+                </ul>
+            </div>
+
+            <div class="tool-card">
+                <h3 class="text-xl font-bold mb-3 text-pink-600">
+                    <i class="fas fa-link"></i> Quick Links
+                </h3>
+                <ul class="space-y-2 text-sm">
+                    <li>
+                        <a href="/" class="text-blue-600 hover:underline">
+                            <i class="fas fa-camera"></i> Photobooth App
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/DEPLOY.md" class="text-blue-600 hover:underline">
+                            <i class="fas fa-rocket"></i> Deploy Guide
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/Cevin2107/Photobooth" class="text-blue-600 hover:underline" target="_blank">
+                            <i class="fab fa-github"></i> GitHub Repo
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="text-center mt-8 text-white opacity-75">
+            <p>Made with 💖 by PhotoXinh Team</p>
+        </div>
+    </div>
+</body>
+</html>

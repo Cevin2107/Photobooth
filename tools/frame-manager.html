@@ -69,7 +69,7 @@
         </div>
     </div>
     <script type="module">
-        import { DEFAULT_FRAMES_JSON } from './js/default-frames.js';
+        import { DEFAULT_FRAMES_JSON } from '../js/default-frames.js';
         document.getElementById('codeFrames').textContent = DEFAULT_FRAMES_JSON.length;
         window.checkDuplicates = function() {
             const input = document.getElementById('jsonInput').value.trim();

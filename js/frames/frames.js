@@ -1,45 +1,103 @@
 // Frames Module
-import { STATE } from './config.js';
+import { STATE } from '../config.js';
+import { FRAME_POSITIONS_1X4, STANDARD_CONFIG_1X4 } from './frame-positions-1x4.js';
+import { FRAME_POSITIONS_2X2, STANDARD_CONFIG_2X2 } from './frame-positions-2x2.js';
+import { FRAME_POSITIONS_2X3, STANDARD_CONFIG_2X3 } from './frame-positions-2x3.js';
 
 /**
  * ============================================================================
- * 📐 FRAME POSITIONS CONFIGURATION
+ * 📐 FRAME POSITIONS CONFIGURATION - MULTI LAYOUT SUPPORT
  * ============================================================================
  * 
- * Để thêm/update positions cho frames:
+ * Hệ thống hỗ trợ 3 loại layout:
+ * - 1x4: Frame chiều dọc với 4 slots (1181 x 2512 px)
+ * - 2x2: Frame 4 slots 2 cột x 2 hàng (1140 x 1613 px)
+ * - 2x3: Frame 6 slots 2 cột x 3 hàng (1120 x 1368 px)
  * 
- * 1. Mở frame-position-detector.html
- * 2. Click "Start Auto-Detection"
- * 3. Chọn frames cần detect (checkbox)
- * 4. Click "Generate JSON for Selected"
- * 5. Copy JSON result
- * 6. Paste vào object FRAME_POSITIONS bên dưới
- * 
- * Format JSON:
- * {
- *   "frame-url": {
- *     "photoSize": { "width": 771, "height": 565 },
- *     "positions": [
- *       { "x": 0, "y": 64, "centerX": true },
- *       { "x": 0, "y": 676, "centerX": true },
- *       { "x": 0, "y": 1288, "centerX": true },
- *       { "x": 0, "y": 1900, "centerX": true }
- *     ]
- *   }
- * }
- * 
- * NOTE: Tool sẽ tự động detect positions cho frames mới. Chỉ cần paste vào đây!
+ * Để update positions:
+ * 1. Mở tool tương ứng trong tools/frame-detector/
+ *    - detector-1x4.html (cho frames 1x4)
+ *    - detector-2x2.html (cho frames 2x2)
+ *    - detector-2x3.html (cho frames 2x3)
+ * 2. Tool sẽ tự động filter frames theo kích thước
+ * 3. Detect hoặc manual edit positions
+ * 4. Copy JSON result
+ * 5. Paste vào file tương ứng:
+ *    - frame-positions-1x4.js
+ *    - frame-positions-2x2.js
+ *    - frame-positions-2x3.js
  * ============================================================================
  */
 
-const FRAME_POSITIONS = {
-    // Paste detected positions here
-    // Example:
-    // "https://cdn.freehihi.com/frames/abc.png": {
-    //     "photoSize": { "width": 771, "height": 565 },
-    //     "positions": [...]
-    // }
-};
+/**
+ * Detect layout from image dimensions
+ * @param {number} width - Image width
+ * @param {number} height - Image height
+ * @returns {string} Layout type: '1x4', '2x2', '2x3', or '1x4' (default)
+ */
+export function detectLayoutFromDimensions(width, height) {
+    const aspectRatio = width / height;
+    
+    // 2x2 layout: ~1140x1613 (aspect ratio ~0.707, tolerance ±10%)
+    // Check both exact dimensions and aspect ratio
+    const ratio_2x2 = 1140 / 1613; // ~0.707
+    if (
+        (Math.abs(width - 1140) <= 100 && Math.abs(height - 1613) <= 100) ||
+        (Math.abs(aspectRatio - ratio_2x2) <= 0.07 && width > 500 && height > 700 && height > width)
+    ) {
+        console.log(`  ✅ Detected 2x2: ${width}x${height} (ratio: ${aspectRatio.toFixed(3)})`);
+        return '2x2';
+    }
+    
+    // 2x3 layout: ~1120x1368 (aspect ratio ~0.819, tolerance ±10%)
+    const ratio_2x3 = 1120 / 1368; // ~0.819
+    if (
+        (Math.abs(width - 1120) <= 100 && Math.abs(height - 1368) <= 100) ||
+        (Math.abs(aspectRatio - ratio_2x3) <= 0.08 && width > 500 && height > 600 && height > width)
+    ) {
+        console.log(`  ✅ Detected 2x3: ${width}x${height} (ratio: ${aspectRatio.toFixed(3)})`);
+        return '2x3';
+    }
+    
+    // 1x4 layout: Vertical frames (height > width && height > 2000)
+    // Or very tall aspect ratio (height/width > 2.5)
+    if ((height > width && height > 2000) || (aspectRatio < 0.5 && height > 1500)) {
+        console.log(`  ✅ Detected 1x4: ${width}x${height} (ratio: ${aspectRatio.toFixed(3)})`);
+        return '1x4';
+    }
+    
+    // Default: Check which ratio is closest
+    const ratios = {
+        '2x2': Math.abs(aspectRatio - ratio_2x2),
+        '2x3': Math.abs(aspectRatio - ratio_2x3),
+        '1x4': Math.abs(aspectRatio - 0.4) // Typical 1x4 ratio
+    };
+    
+    const closest = Object.entries(ratios).reduce((a, b) => a[1] < b[1] ? a : b)[0];
+    console.log(`  ⚠️ No exact match for ${width}x${height} (ratio: ${aspectRatio.toFixed(3)}), closest: ${closest}`);
+    
+    return closest;
+}
+
+/**
+ * Load image and detect its layout
+ * @param {string} url - Image URL
+ * @returns {Promise<string>} Layout type
+ */
+export function detectLayoutFromImage(url) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => {
+            const layout = detectLayoutFromDimensions(img.width, img.height);
+            resolve(layout);
+        };
+        img.onerror = () => {
+            console.warn(`Failed to load image for layout detection: ${url}`);
+            resolve('1x4'); // Default fallback
+        };
+        img.src = url;
+    });
+}
 
 // Frame configurations
 export const FRAMES = {
@@ -51,40 +109,79 @@ export const FRAMES = {
 };
 
 // Load external frames from localStorage cache
-export function loadExternalFrames() {
+export async function loadExternalFrames() {
     try {
         const cached = localStorage.getItem('photobooth_external_frames');
         if (cached) {
             const externalFrames = JSON.parse(cached);
             console.log(`✅ Loading ${externalFrames.length} external frames from cache`);
             
+            // Detect layout for frames that don't have it
+            const framesToProcess = [];
+            for (const frame of externalFrames) {
+                if (!frame.layout) {
+                    framesToProcess.push(
+                        detectLayoutFromImage(frame.url)
+                            .then(layout => {
+                                frame.layout = layout;
+                                return frame;
+                            })
+                            .catch(error => {
+                                console.error(`❌ Failed to detect layout for ${frame.name}:`, error);
+                                frame.layout = '1x4'; // Default fallback
+                                return frame;
+                            })
+                    );
+                } else {
+                    framesToProcess.push(Promise.resolve(frame));
+                }
+            }
+            
+            // Wait for all layout detections to complete
+            const processedFrames = await Promise.all(framesToProcess);
+            
+            console.log(`✅ Processed ${processedFrames.length} frames (started with ${externalFrames.length})`);
+            
+            // Update localStorage with detected layouts
+            localStorage.setItem('photobooth_external_frames', JSON.stringify(processedFrames));
+            
             // Merge external frames into FRAMES object with proper format
-            externalFrames.forEach((frame, index) => {
+            processedFrames.forEach((frame, index) => {
                 const frameKey = `external_${index}`;
                 
-                // Get positions from FRAME_POSITIONS config or use defaults
-                const positionConfig = FRAME_POSITIONS[frame.url] || {
-                    photoSize: { width: 771, height: 565 },
-                    positions: [
-                        { x: 0, y: 64, centerX: true },
-                        { x: 0, y: 676, centerX: true },
-                        { x: 0, y: 1288, centerX: true },
-                        { x: 0, y: 1900, centerX: true }
-                    ]
-                };
+                const layout = frame.layout || '1x4';
+                
+                // Get positions from appropriate config based on layout
+                let positionConfig;
+                if (layout === '2x2') {
+                    positionConfig = FRAME_POSITIONS_2X2[frame.url] || STANDARD_CONFIG_2X2;
+                } else if (layout === '2x3') {
+                    positionConfig = FRAME_POSITIONS_2X3[frame.url] || STANDARD_CONFIG_2X3;
+                } else {
+                    // Default to 1x4
+                    positionConfig = FRAME_POSITIONS_1X4[frame.url] || STANDARD_CONFIG_1X4;
+                }
                 
                 FRAMES[frameKey] = {
                     name: frame.name || `Frame ${index + 1}`,
                     image: frame.url,
-                    layout: '1x4', // Default to 1x4 for freehihi frames
+                    layout: layout,
                     photoSize: positionConfig.photoSize,
                     positions: positionConfig.positions,
                     isExternal: true // Mark as external frame
                 };
             });
             
-            console.log(`✅ Loaded ${externalFrames.length} external frames (total frames: ${Object.keys(FRAMES).length})`);
-            return externalFrames.length;
+            console.log(`✅ Loaded ${processedFrames.length} external frames (total frames: ${Object.keys(FRAMES).length})`);
+            
+            // Log layout distribution
+            const layoutCounts = processedFrames.reduce((acc, f) => {
+                acc[f.layout] = (acc[f.layout] || 0) + 1;
+                return acc;
+            }, {});
+            console.log(`📊 Layout distribution:`, layoutCounts);
+            
+            return processedFrames.length;
         } else {
             console.warn('⚠️ No external frames in cache. Use frame-manager.html to import.');
         }
@@ -92,6 +189,44 @@ export function loadExternalFrames() {
         console.error('❌ Error loading external frames:', error);
     }
     return 0;
+}
+
+// Force re-detect all frame layouts
+export async function forceRedetectLayouts() {
+    try {
+        const cached = localStorage.getItem('photobooth_external_frames');
+        if (!cached) {
+            console.warn('No frames in cache to re-detect');
+            return;
+        }
+        
+        const frames = JSON.parse(cached);
+        console.log(`🔄 Re-detecting layouts for ${frames.length} frames...`);
+        
+        // Clear FRAMES object (except 'none')
+        Object.keys(FRAMES).forEach(key => {
+            if (key !== 'none') delete FRAMES[key];
+        });
+        
+        // Re-detect layouts
+        for (const frame of frames) {
+            const layout = await detectLayoutFromImage(frame.url);
+            frame.layout = layout;
+            console.log(`  ✅ ${frame.name}: ${layout}`);
+        }
+        
+        // Save back to localStorage
+        localStorage.setItem('photobooth_external_frames', JSON.stringify(frames));
+        
+        console.log('✅ Re-detection complete! Reloading frames...');
+        
+        // Reload frames
+        await loadExternalFrames();
+        
+        return frames;
+    } catch (error) {
+        console.error('❌ Error re-detecting layouts:', error);
+    }
 }
 
 // Check if cache needs refresh (older than 24 hours)
@@ -111,9 +246,31 @@ export function needsCacheRefresh() {
 
 // Get frames for current layout
 export function getFramesForLayout(layout) {
-    return Object.entries(FRAMES)
-        .filter(([key, frame]) => frame.layout === 'all' || frame.layout === layout)
+    const allFrames = Object.entries(FRAMES);
+    console.log(`🔍 Filtering frames for layout: ${layout}, Total frames: ${allFrames.length}`);
+    
+    // Log all frames with their layouts
+    allFrames.forEach(([key, frame]) => {
+        console.log(`  📋 ${key}: ${frame.name} (layout: ${frame.layout})`);
+    });
+    
+    const filtered = allFrames
+        .filter(([key, frame]) => {
+            const matches = frame.layout === 'all' || frame.layout === layout;
+            return matches;
+        })
         .map(([key, frame]) => ({ key, ...frame }));
+    
+    console.log(`✅ Found ${filtered.length} frames for layout ${layout}`);
+    
+    // If no frames found for this layout, show warning and return all frames
+    if (filtered.length === 0) {
+        console.warn(`⚠️ No frames found for layout ${layout}. Showing all frames as fallback.`);
+        console.warn(`💡 Tip: Clear localStorage and reload to re-detect frame layouts.`);
+        return allFrames.map(([key, frame]) => ({ key, ...frame }));
+    }
+    
+    return filtered;
 }
 
 // Open frame selector modal

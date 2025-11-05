@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frame Position Detector - Layout 2x2</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 30px; }
+        .container { max-width: 1400px; margin: 0 auto; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+        h1 { color: #667eea; margin-bottom: 30px; }
+        .section { background: #f8f9fa; border-radius: 16px; padding: 30px; margin-bottom: 30px; }
+        .section h2 { color: #667eea; margin-bottom: 20px; }
+        .info-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        button { padding: 12px 24px; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; color: white; margin-right: 10px; margin-bottom: 10px; }
+        .btn-primary { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .btn-success { background: linear-gradient(135deg, #48bb78 0%, #38a169 100%); }
+        .btn-warning { background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%); }
+        .progress-container { background: #e2e8f0; height: 30px; border-radius: 15px; overflow: hidden; margin: 20px 0; }
+        .progress-bar { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100%; width: 0%; transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; }
+        .result-box { background: #1e1e1e; color: #d4d4d4; padding: 20px; border-radius: 12px; font-family: 'Courier New'; font-size: 13px; max-height: 400px; overflow-y: auto; white-space: pre-wrap; margin-top: 20px; }
+        .preview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px; }
+        .preview-item { background: white; border: 2px solid #e2e8f0; border-radius: 12px; padding: 15px; position: relative; }
+        .preview-item.selected { border-color: #667eea; background: #f0f4ff; }
+        .preview-item canvas { width: 100%; border-radius: 8px; background: #f8f9fa; }
+        .preview-item .name { font-weight: 600; margin-bottom: 10px; color: #333; }
+        .preview-item .info { font-size: 12px; color: #666; margin-top: 10px; }
+        .preview-item .checkbox { position: absolute; top: 15px; right: 15px; }
+        .preview-item .checkbox input { width: 20px; height: 20px; cursor: pointer; }
+        .preview-item .actions { margin-top: 10px; text-align: center; }
+        .preview-item .actions button { padding: 6px 12px; font-size: 12px; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 11px; font-weight: 700; margin-bottom: 8px; }
+        .status-success { background: #d1fae5; color: #065f46; }
+        .status-manual { background: #dbeafe; color: #1e40af; }
+        .status-failed { background: #fee2e2; color: #991b1b; }
+        .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .alert-success { background: #d1fae5; color: #065f46; }
+        .alert-error { background: #fee2e2; color: #991b1b; }
+        .alert-warning { background: #fef3c7; color: #92400e; }
+        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin: 20px 0; }
+        .stat-card { background: white; padding: 15px; border-radius: 8px; border: 2px solid #e2e8f0; text-align: center; }
+        .stat-card .value { font-size: 28px; font-weight: 700; color: #667eea; }
+        .stat-card .label { font-size: 12px; color: #666; margin-top: 5px; }
+        .failed-list { background: white; border-radius: 8px; padding: 15px; margin-top: 15px; }
+        .failed-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-bottom: 1px solid #e2e8f0; }
+        .failed-item:last-child { border-bottom: none; }
+        .failed-item .name { font-weight: 600; color: #333; }
+        .failed-item button { padding: 6px 12px; font-size: 12px; }
+        .detection-mode { background: white; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .detection-mode label { display: flex; align-items: center; margin-bottom: 10px; cursor: pointer; }
+        .detection-mode input[type="radio"] { margin-right: 10px; }
+        .detection-mode .mode-desc { font-size: 12px; color: #666; margin-left: 28px; margin-top: -5px; margin-bottom: 10px; }
+        
+        /* Manual Editor Modal */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); overflow: auto; }
+        .modal.active { display: flex; align-items: center; justify-content: center; }
+        .modal-content { background: white; border-radius: 20px; padding: 30px; max-width: 90%; max-height: 90vh; overflow: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h2 { margin: 0; color: #667eea; }
+        .modal-close { background: #e2e8f0; border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; font-size: 20px; }
+        .modal-close:hover { background: #cbd5e0; }
+        .editor-container { position: relative; display: inline-block; }
+        .editor-canvas { border: 2px solid #667eea; border-radius: 8px; max-width: 100%; cursor: crosshair; }
+        .editor-instructions { background: #fff3cd; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        .editor-controls { margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
+        .rect-handle { position: absolute; background: red; opacity: 0.3; border: 2px solid red; cursor: move; }
+        .rect-handle:hover { opacity: 0.5; }
+        .rect-handle.active { opacity: 0.6; border-color: #ff0000; border-width: 3px; }
+        .handle-label { position: absolute; top: 5px; left: 5px; color: white; font-weight: bold; font-size: 20px; text-shadow: 2px 2px 4px rgba(0,0,0,0.8); pointer-events: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-crosshairs"></i> Frame Position Detector - Layout 2x2</h1>
+        
+        <div class="section">
+            <h2>📋 Hướng dẫn</h2>
+            <div class="info-box">
+                <strong>Tool này dành cho LAYOUT 2x2:</strong><br>
+                • Frame dimensions: 1140 x 1613 px (4 slots, 2x2 grid)<br>
+                • Hoặc frames lớn hơn với cùng tỷ lệ (e.g., 3000×4244)<br>
+                • Tool sẽ tự động filter và chỉ hiển thị frames 2x2<br><br>
+                <strong>Quy trình:</strong><br>
+                1. Load tất cả frames từ <code>default-frames.js</code><br>
+                2. Filter frames theo aspect ratio ~0.707 hoặc dimension 1140×1613 ±100px<br>
+                3. Scan từng frame để tìm vùng transparent<br>
+                4. Detect 4 photo slots (2 columns x 2 rows)<br>
+                5. Generate positions config tự động<br>
+                6. Preview kết quả với overlay màu đỏ<br>
+                7. Export JSON để update vào <code>frame-positions-2x2.js</code>
+            </div>
+            
+            <div class="detection-mode">
+                <label>
+                    <input type="radio" name="mode" value="normal" checked>
+                    <strong>Normal Detection</strong>
+                </label>
+                <div class="mode-desc">Detect cơ bản - nhanh nhưng có thể bỏ sót viền</div>
+                
+                <label>
+                    <input type="radio" name="mode" value="precise">
+                    <strong>Precise Detection</strong>
+                </label>
+                <div class="mode-desc">Expand vùng transparent ±10px để bao trọn khung ảnh - chính xác hơn nhưng chậm hơn</div>
+            </div>
+            
+            <button class="btn-primary" onclick="startDetection()">
+                <i class="fas fa-play"></i> Start Auto-Detection
+            </button>
+            <button class="btn-warning" onclick="stopDetection()">
+                <i class="fas fa-stop"></i> Stop
+            </button>
+        </div>
+
+        <div id="progressSection" class="section" style="display: none;">
+            <h2>⏳ Đang xử lý...</h2>
+            <div class="progress-container">
+                <div id="progressBar" class="progress-bar">0%</div>
+            </div>
+            <div id="currentFrame" style="text-align: center; color: #666; margin-top: 10px;"></div>
+            
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="value" id="processedCount">0</div>
+                    <div class="label">Processed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="successCount">0</div>
+                    <div class="label">Success</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="failedCount">0</div>
+                    <div class="label">Failed</div>
+                </div>
+            </div>
+            
+            <div id="failedList" style="display: none;">
+                <div class="alert alert-warning">
+                    <strong>❌ Failed Frames:</strong> Không detect đủ 4 slots hoặc kích thước không đồng nhất
+                </div>
+                <div class="failed-list" id="failedItems"></div>
+            </div>
+        </div>
+
+        <div id="previewSection" class="section" style="display: none;">
+            <h2>🖼️ Preview Results</h2>
+            <div style="margin-bottom: 15px;">
+                <button class="btn-primary" onclick="selectAllFrames()">
+                    <i class="fas fa-check-square"></i> Select All
+                </button>
+                <button class="btn-warning" onclick="deselectAllFrames()">
+                    <i class="fas fa-square"></i> Deselect All
+                </button>
+                <button class="btn-success" onclick="generateSelectedJSON()">
+                    <i class="fas fa-code"></i> Generate JSON for Selected
+                </button>
+            </div>
+            <div id="previewGrid" class="preview-grid"></div>
+        </div>
+
+        <div id="resultSection" class="section" style="display: none;">
+            <h2>✅ Generated Positions JSON</h2>
+            <div class="alert alert-success">
+                <strong>Đã generate cho <span id="selectedCount">0</span> frames được chọn</strong><br>
+                <strong>⚠️ Cách paste:</strong> Copy JSON bên dưới và paste <strong>THAY THẾ nội dung bên trong</strong> <code>export const FRAME_POSITIONS_2X2 = { ... }</code> trong file <code>js/frames/frame-positions-2x2.js</code><br>
+                <strong>❌ KHÔNG</strong> paste cả khối <code>{ ... }</code> vào bên trong <code>{ }</code> có sẵn!
+            </div>
+            <div id="resultBox" class="result-box"></div>
+            <button class="btn-success" onclick="copyResult()">
+                <i class="fas fa-copy"></i> Copy JSON
+            </button>
+        </div>
+    </div>
+
+    <!-- Manual Editor Modal -->
+    <div id="manualEditorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Manual Position Editor</h2>
+                <button class="modal-close" onclick="closeManualEditor()">×</button>
+            </div>
+            
+            <div class="editor-instructions">
+                <strong>🎯 Hướng dẫn:</strong><br>
+                1. Kéo từng vùng đỏ để căn chỉnh với khung hình trong frame<br>
+                2. Có thể resize bằng cách kéo góc vùng đỏ<br>
+                3. 4 vùng đỏ đánh số từ 1-4 (trên xuống dưới)<br>
+                4. Nhấn "📐 Apply Standard Size" để áp dụng kích thước chuẩn (771x565, spacing 47px)<br>
+                5. Nhấn "✅ Done" khi hoàn tất
+            </div>
+
+            <div class="editor-container" id="editorContainer">
+                <canvas id="editorCanvas" class="editor-canvas"></canvas>
+            </div>
+
+            <div class="editor-controls">
+                <button class="btn-primary" onclick="applyStandardSize()">
+                    <i class="fas fa-ruler"></i> Apply Standard Size
+                </button>
+                <button class="btn-success" onclick="saveManualEdit()">
+                    <i class="fas fa-check"></i> Done - Save Positions
+                </button>
+                <button class="btn-warning" onclick="closeManualEditor()">
+                    <i class="fas fa-times"></i> Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { DEFAULT_FRAMES_JSON } from '../../js/default-frames.js';
+
+        let isRunning = false;
+        let results = {};
+        let failedFrames = [];
+        let frameElements = {}; // Store frame elements by URL
+        
+        // Filter frames by layout (2x2 only)
+        // Accepts: 1140x1613 ±100px OR aspect ratio 0.707 ±5% (for larger frames like 3000x4244)
+        const LAYOUT_2X2_FRAMES = DEFAULT_FRAMES_JSON.filter(frame => {
+            // If frame has layout metadata, use it
+            if (frame.layout) {
+                return frame.layout === '2x2';
+            }
+            // Otherwise, include all frames and filter by dimensions during detection
+            return true;
+        });
+
+        console.log(`📊 Total frames: ${DEFAULT_FRAMES_JSON.length}`);
+        console.log(`📊 Frames for 2x2 layout: ${LAYOUT_2X2_FRAMES.length}`);
+        
+        // Manual editor state
+        let editorFrame = null;
+        let editorCanvas = null;
+        let editorCtx = null;
+        let editorImage = null;
+        let editorRects = [];
+        let dragRect = null;
+        let dragOffset = { x: 0, y: 0 };
+        let resizeHandle = null;
+
+        window.startDetection = async function() {
+            if (isRunning) return;
+            isRunning = true;
+
+            document.getElementById('progressSection').style.display = 'block';
+            document.getElementById('previewSection').style.display = 'none';
+            document.getElementById('resultSection').style.display = 'none';
+            document.getElementById('failedList').style.display = 'none';
+            document.getElementById('previewGrid').innerHTML = '';
+            document.getElementById('failedItems').innerHTML = '';
+            failedFrames = [];
+
+            const mode = document.querySelector('input[name="mode"]:checked').value;
+
+            let processed = 0;
+            let success = 0;
+            let failed = 0;
+            let skipped = 0; // Frames not matching 2x2 dimensions
+
+            for (let i = 0; i < LAYOUT_2X2_FRAMES.length; i++) {
+                if (!isRunning) break;
+
+                const frame = LAYOUT_2X2_FRAMES[i];
+                const percent = Math.round(((i + 1) / LAYOUT_2X2_FRAMES.length) * 100);
+                
+                document.getElementById('progressBar').style.width = percent + '%';
+                document.getElementById('progressBar').textContent = percent + '%';
+                document.getElementById('currentFrame').textContent = `Processing: ${frame.name}`;
+
+                try {
+                    const result = await detectFramePositions(frame, mode);
+                    
+                    // Check if frame matches 2x2 dimensions
+                    if (result.skipped) {
+                        skipped++;
+                        console.log(`⏭️ Skipped ${frame.name}: Not 2x2 layout (${result.width}x${result.height})`);
+                    } else if (result.success) {
+                        results[frame.url] = result;
+                        results[frame.url].status = 'success'; // Mark as auto-detected
+                        success++;
+                        showPreview(frame, result);
+                    } else {
+                        failed++;
+                        failedFrames.push(frame);
+                        addFailedItem(frame);
+                    }
+                } catch (error) {
+                    console.error(`Error processing ${frame.name}:`, error);
+                    failed++;
+                    failedFrames.push(frame);
+                    addFailedItem(frame);
+                }
+
+                processed++;
+                document.getElementById('processedCount').textContent = processed;
+                document.getElementById('successCount').textContent = success;
+                document.getElementById('failedCount').textContent = failed;
+
+                await sleep(100); // Avoid blocking
+            }
+
+            if (failedFrames.length > 0) {
+                document.getElementById('failedList').style.display = 'block';
+            }
+
+            isRunning = false;
+            if (Object.keys(results).length > 0) {
+                document.getElementById('previewSection').style.display = 'block';
+            }
+        };
+
+        window.stopDetection = function() {
+            isRunning = false;
+        };
+
+        window.selectAllFrames = function() {
+            document.querySelectorAll('.frame-checkbox').forEach(cb => {
+                cb.checked = true;
+                cb.closest('.preview-item').classList.add('selected');
+            });
+        };
+
+        window.deselectAllFrames = function() {
+            document.querySelectorAll('.frame-checkbox').forEach(cb => {
+                cb.checked = false;
+                cb.closest('.preview-item').classList.remove('selected');
+            });
+        };
+
+        window.generateSelectedJSON = function() {
+            const selected = {};
+            document.querySelectorAll('.frame-checkbox:checked').forEach(cb => {
+                const url = cb.dataset.url;
+                if (results[url]) {
+                    selected[url] = results[url];
+                }
+            });
+
+            if (Object.keys(selected).length === 0) {
+                alert('⚠️ Vui lòng chọn ít nhất 1 frame!');
+                return;
+            }
+
+            showResults(selected);
+        };
+
+        window.toggleFrameSelection = function(checkbox) {
+            const item = checkbox.closest('.preview-item');
+            if (checkbox.checked) {
+                item.classList.add('selected');
+            } else {
+                item.classList.remove('selected');
+            }
+        };
+
+        window.retryFrame = async function(frameName) {
+            const frame = failedFrames.find(f => f.name === frameName);
+            if (!frame) return;
+
+            const mode = 'precise'; // Always use precise for retry
+            const result = await detectFramePositions(frame, mode);
+            
+            if (result.success) {
+                results[frame.url] = result;
+                results[frame.url].status = 'success'; // Mark as auto-detected
+                showPreview(frame, result);
+                
+                // Remove from failed list
+                failedFrames = failedFrames.filter(f => f.name !== frameName);
+                const failedItem = document.querySelector(`[data-frame="${frameName}"]`);
+                if (failedItem) failedItem.remove();
+                
+                // Update stats
+                const successCount = parseInt(document.getElementById('successCount').textContent);
+                const failedCount = parseInt(document.getElementById('failedCount').textContent);
+                document.getElementById('successCount').textContent = successCount + 1;
+                document.getElementById('failedCount').textContent = failedCount - 1;
+                
+                if (failedFrames.length === 0) {
+                    document.getElementById('failedList').style.display = 'none';
+                }
+                
+                generateSelectedJSON();
+            } else {
+                alert(`❌ Vẫn không detect được frame ${frameName}. Thử điều chỉnh thủ công.`);
+                // Open manual editor for failed retry
+                const frame = failedFrames.find(f => f.name === frameName);
+                if (frame) {
+                    openManualEditor(frame);
+                }
+            }
+        };
+
+        function addFailedItem(frame) {
+            const list = document.getElementById('failedItems');
+            const item = document.createElement('div');
+            item.className = 'failed-item';
+            item.setAttribute('data-frame', frame.name);
+            item.innerHTML = `
+                <div>
+                    <span class="status-badge status-failed">🔴 Failed</span>
+                    <span class="name">${frame.name}</span>
+                </div>
+                <div>
+                    <button class="btn-primary" onclick="retryFrame('${frame.name}')">
+                        <i class="fas fa-redo"></i> Retry (Precise)
+                    </button>
+                    <button class="btn-warning" onclick='openManualEditorByName(${JSON.stringify(frame.name)})'>
+                        <i class="fas fa-edit"></i> Manual Edit
+                    </button>
+                </div>
+            `;
+            list.appendChild(item);
+        }
+
+        window.stopDetection = function() {
+            isRunning = false;
+        };
+
+        async function detectFramePositions(frame, mode = 'normal') {
+            return new Promise((resolve) => {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+                
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    
+                    // Check if frame matches 2x2 layout:
+                    // Option 1: Dimension check - 1140x1613 (±100px tolerance)
+                    const dimensionMatch = Math.abs(img.width - 1140) <= 100 && Math.abs(img.height - 1613) <= 100;
+                    
+                    // Option 2: Aspect ratio check - 0.707 (±5% tolerance for all sizes)
+                    const targetRatio = 1140 / 1613; // ≈ 0.707
+                    const actualRatio = img.width / img.height;
+                    const ratioDiff = Math.abs(actualRatio - targetRatio) / targetRatio;
+                    const ratioMatch = ratioDiff <= 0.05; // 5% tolerance
+                    
+                    const is2x2 = dimensionMatch || ratioMatch;
+                    
+                    // Debug logging
+                    if (!is2x2) {
+                        console.log(`🔍 Checking ${frame.name}: ${img.width}x${img.height}`);
+                        console.log(`   Target ratio: ${targetRatio.toFixed(4)}, Actual: ${actualRatio.toFixed(4)}, Diff: ${(ratioDiff * 100).toFixed(2)}%`);
+                        console.log(`   Dimension match: ${dimensionMatch}, Ratio match: ${ratioMatch}`);
+                    }
+                    
+                    if (!is2x2) {
+                        resolve({
+                            success: false,
+                            skipped: true,
+                            width: img.width,
+                            height: img.height,
+                            positions: []
+                        });
+                        return;
+                    }
+                    
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0);
+
+                    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+                    const positions = findTransparentSlots(imageData, canvas.width, canvas.height, mode);
+
+                    resolve({
+                        success: positions.length === 4,
+                        skipped: false,
+                        positions: positions,
+                        photoSize: positions.length > 0 ? positions[0].size : null,
+                        canvas: canvas,
+                        mode: mode
+                    });
+                };
+
+                img.onerror = () => {
+                    resolve({ success: false, skipped: false, positions: [] });
+                };
+
+                img.src = frame.url;
+            });
+        }
+
+        function findTransparentSlots(imageData, width, height, mode) {
+            const data = imageData.data;
+            const slots = [];
+            
+            // Scan for transparent rectangles
+            const transparentMap = new Array(height).fill(0).map(() => new Array(width).fill(false));
+            
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const i = (y * width + x) * 4;
+                    const alpha = data[i + 3];
+                    if (alpha === 0) {
+                        transparentMap[y][x] = true;
+                    }
+                }
+            }
+
+            // Find rectangular regions
+            const regions = findRectangularRegions(transparentMap, width, height);
+            
+            // Get 4 largest regions
+            regions.sort((a, b) => b.area - a.area);
+            const top4 = regions.slice(0, 4);
+            
+            if (top4.length < 4) return []; // Not enough slots detected
+
+            // Sort by Y position (top to bottom)
+            top4.sort((a, b) => a.y - b.y);
+
+            // Calculate common size (use median)
+            const widths = top4.map(r => r.width);
+            const heights = top4.map(r => r.height);
+            let commonWidth = median(widths);
+            let commonHeight = median(heights);
+
+            // PRECISE MODE: Expand dimensions
+            if (mode === 'precise') {
+                const expandPixels = 10;
+                commonWidth += expandPixels * 2;
+                commonHeight += expandPixels * 2;
+            }
+
+            // Generate positions with common size
+            return top4.map((region, index) => {
+                let x = region.x;
+                let y = region.y;
+                
+                // PRECISE MODE: Adjust position to center the expanded area
+                if (mode === 'precise') {
+                    const expandPixels = 10;
+                    x = Math.max(0, x - expandPixels);
+                    y = Math.max(0, y - expandPixels);
+                }
+
+                return {
+                    x: Math.round(x),
+                    y: Math.round(y),
+                    centerX: false,  // For 2x2 grid, use exact X position (not centered)
+                    size: {
+                        width: Math.round(commonWidth),
+                        height: Math.round(commonHeight)
+                    }
+                };
+            });
+        }
+
+        function findRectangularRegions(map, width, height) {
+            const regions = [];
+            const visited = new Array(height).fill(0).map(() => new Array(width).fill(false));
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    if (map[y][x] && !visited[y][x]) {
+                        const region = floodFill(map, visited, x, y, width, height);
+                        if (region.width > 100 && region.height > 100) { // Filter small regions
+                            regions.push(region);
+                        }
+                    }
+                }
+            }
+
+            return regions;
+        }
+
+        function floodFill(map, visited, startX, startY, width, height) {
+            let minX = startX, maxX = startX;
+            let minY = startY, maxY = startY;
+            
+            const queue = [[startX, startY]];
+            visited[startY][startX] = true;
+
+            while (queue.length > 0) {
+                const [x, y] = queue.shift();
+                
+                minX = Math.min(minX, x);
+                maxX = Math.max(maxX, x);
+                minY = Math.min(minY, y);
+                maxY = Math.max(maxY, y);
+
+                // Check 4 directions
+                const dirs = [[0,1], [0,-1], [1,0], [-1,0]];
+                for (const [dx, dy] of dirs) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (nx >= 0 && nx < width && ny >= 0 && ny < height &&
+                        map[ny][nx] && !visited[ny][nx]) {
+                        visited[ny][nx] = true;
+                        queue.push([nx, ny]);
+                    }
+                }
+            }
+
+            return {
+                x: minX,
+                y: minY,
+                width: maxX - minX + 1,
+                height: maxY - minY + 1,
+                area: (maxX - minX + 1) * (maxY - minY + 1)
+            };
+        }
+
+        function median(arr) {
+            const sorted = [...arr].sort((a, b) => a - b);
+            const mid = Math.floor(sorted.length / 2);
+            return sorted.length % 2 === 0 ? (sorted[mid - 1] + sorted[mid]) / 2 : sorted[mid];
+        }
+
+        function showPreview(frame, result) {
+            const grid = document.getElementById('previewGrid');
+
+            // Remove old preview if exists (for manual edit updates)
+            const oldItem = document.querySelector(`[data-url="${frame.url}"]`);
+            if (oldItem) oldItem.remove();
+
+            const item = document.createElement('div');
+            item.className = 'preview-item selected'; // Default selected
+            item.dataset.url = frame.url;
+
+            const previewCanvas = document.createElement('canvas');
+            const ctx = previewCanvas.getContext('2d');
+            previewCanvas.width = result.canvas.width;
+            previewCanvas.height = result.canvas.height;
+
+            // Draw original
+            ctx.drawImage(result.canvas, 0, 0);
+
+            // Draw overlay
+            ctx.strokeStyle = 'red';
+            ctx.lineWidth = 4;
+            result.positions.forEach((pos, i) => {
+                const x = pos.centerX ? (previewCanvas.width - pos.size.width) / 2 : pos.x;
+                ctx.strokeRect(x, pos.y, pos.size.width, pos.size.height);
+                ctx.fillStyle = 'red';
+                ctx.font = '30px Arial';
+                ctx.fillText(`${i + 1}`, x + 10, pos.y + 40);
+            });
+
+            // Determine status and badge
+            const status = result.status || 'success';
+            let statusBadge = '';
+            let statusClass = '';
+            
+            if (status === 'success') {
+                statusBadge = '🟢 Auto-Detected';
+                statusClass = 'status-success';
+            } else if (status === 'manual') {
+                statusBadge = '✅ Manual Edited';
+                statusClass = 'status-manual';
+            }
+
+            item.innerHTML = `
+                <div class="checkbox">
+                    <input type="checkbox" class="frame-checkbox" 
+                           data-url="${frame.url}" 
+                           onchange="toggleFrameSelection(this)"
+                           checked>
+                </div>
+                <div class="status-badge ${statusClass}">${statusBadge}</div>
+                <div class="name">${frame.name}</div>
+                <div class="info">
+                    Mode: <strong>${result.mode === 'precise' ? '🎯 Precise' : result.mode === 'manual' ? '✋ Manual' : '⚡ Normal'}</strong><br>
+                    Photo size: ${result.photoSize.width} x ${result.photoSize.height}px<br>
+                    Positions: ${result.positions.length} slots detected
+                </div>
+                <div class="actions">
+                    <button class="btn-warning" onclick='openManualEditorByUrl(${JSON.stringify(frame.url)})'>
+                        <i class="fas fa-edit"></i> Manual Edit
+                    </button>
+                </div>
+            `;
+            item.appendChild(previewCanvas);
+            grid.appendChild(item);
+        }
+
+        function showResults(selectedResults = null) {
+            const resultsToShow = selectedResults || results;
+            
+            if (Object.keys(resultsToShow).length === 0) return;
+            
+            document.getElementById('resultSection').style.display = 'block';
+            document.getElementById('selectedCount').textContent = Object.keys(resultsToShow).length;
+            
+            const output = {};
+            for (const [url, result] of Object.entries(resultsToShow)) {
+                output[url] = {
+                    photoSize: result.photoSize,
+                    positions: result.positions.map(p => ({
+                        x: p.x,
+                        y: p.y,
+                        centerX: p.centerX
+                    }))
+                };
+            }
+
+            document.getElementById('resultBox').textContent = JSON.stringify(output, null, 2);
+        }
+
+        window.copyResult = function() {
+            const text = document.getElementById('resultBox').textContent;
+            navigator.clipboard.writeText(text)
+                .then(() => alert('Copied!'))
+                .catch(() => alert('Copy failed'));
+        };
+
+        window.openManualEditorByName = function(frameName) {
+            const frame = DEFAULT_FRAMES_JSON.find(f => f.name === frameName);
+            if (frame) openManualEditor(frame);
+        };
+
+        window.openManualEditorByUrl = function(frameUrl) {
+            const frame = DEFAULT_FRAMES_JSON.find(f => f.url === frameUrl);
+            if (frame) openManualEditor(frame);
+        };
+
+        window.openManualEditor = async function(frame) {
+            editorFrame = frame;
+            document.getElementById('manualEditorModal').classList.add('active');
+            
+            // Load image
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            
+            img.onload = () => {
+                editorImage = img;
+                editorCanvas = document.getElementById('editorCanvas');
+                editorCtx = editorCanvas.getContext('2d');
+                
+                // Set canvas size
+                const maxWidth = window.innerWidth * 0.8;
+                const maxHeight = window.innerHeight * 0.6;
+                let scale = Math.min(maxWidth / img.width, maxHeight / img.height, 1);
+                
+                editorCanvas.width = img.width * scale;
+                editorCanvas.height = img.height * scale;
+                
+                // Draw image
+                editorCtx.drawImage(img, 0, 0, editorCanvas.width, editorCanvas.height);
+                
+                // Initialize rectangles with default or existing positions
+                const existingResult = results[frame.url];
+                if (existingResult && existingResult.positions) {
+                    editorRects = existingResult.positions.map((pos, i) => ({
+                        x: pos.x * scale,
+                        y: pos.y * scale,
+                        width: pos.size.width * scale,
+                        height: pos.size.height * scale,
+                        originalScale: scale,
+                        label: i + 1
+                    }));
+                } else {
+                    // Default positions for 2x2 layout - evenly spaced
+                    const photoWidth = 512 * scale;
+                    const photoHeight = 689 * scale;
+                    const horizontalSpacing = (editorCanvas.width - photoWidth * 2) / 3;
+                    const verticalSpacing = (editorCanvas.height - photoHeight * 2) / 3;
+                    
+                    editorRects = [0, 1, 2, 3].map(i => {
+                        const row = Math.floor(i / 2);  // 0, 0, 1, 1
+                        const col = i % 2;               // 0, 1, 0, 1
+                        
+                        return {
+                            x: horizontalSpacing + (photoWidth + horizontalSpacing) * col,
+                            y: verticalSpacing + (photoHeight + verticalSpacing) * row,
+                            width: photoWidth,
+                            height: photoHeight,
+                            originalScale: scale,
+                            label: i + 1
+                        };
+                    });
+                }
+                
+                drawEditorCanvas();
+                setupEditorInteraction();
+            };
+            
+            img.src = frame.url;
+        };
+
+        window.closeManualEditor = function() {
+            document.getElementById('manualEditorModal').classList.remove('active');
+            editorFrame = null;
+            editorCanvas = null;
+            editorCtx = null;
+            editorImage = null;
+            editorRects = [];
+            dragRect = null;
+        };
+
+        window.applyStandardSize = function() {
+            if (!editorCanvas || !editorImage || !editorRects || editorRects.length !== 4) {
+                alert('❌ Editor chưa sẵn sàng!');
+                return;
+            }
+
+            // Standard configuration for 2x2 layout (Frame: 1140x1613px)
+            const STANDARD_PHOTO_WIDTH = 512;
+            const STANDARD_PHOTO_HEIGHT = 689;
+            const STANDARD_LEFT_MARGIN = 43;
+            const STANDARD_TOP_MARGIN = 43;
+            const STANDARD_HORIZONTAL_SPACING = 30;
+            const STANDARD_VERTICAL_SPACING = 32;
+
+            // Calculate scale
+            const scale = editorCanvas.width / editorImage.width;
+
+            // Calculate positions for 2x2 grid (top-left, top-right, bottom-left, bottom-right)
+            const positions = [
+                // Photo 1: Top-Left
+                { 
+                    x: STANDARD_LEFT_MARGIN, 
+                    y: STANDARD_TOP_MARGIN 
+                },
+                // Photo 2: Top-Right
+                { 
+                    x: STANDARD_LEFT_MARGIN + STANDARD_PHOTO_WIDTH + STANDARD_HORIZONTAL_SPACING, 
+                    y: STANDARD_TOP_MARGIN 
+                },
+                // Photo 3: Bottom-Left
+                { 
+                    x: STANDARD_LEFT_MARGIN, 
+                    y: STANDARD_TOP_MARGIN + STANDARD_PHOTO_HEIGHT + STANDARD_VERTICAL_SPACING 
+                },
+                // Photo 4: Bottom-Right
+                { 
+                    x: STANDARD_LEFT_MARGIN + STANDARD_PHOTO_WIDTH + STANDARD_HORIZONTAL_SPACING, 
+                    y: STANDARD_TOP_MARGIN + STANDARD_PHOTO_HEIGHT + STANDARD_VERTICAL_SPACING 
+                }
+            ];
+
+            // Apply to all rectangles
+            editorRects.forEach((rect, i) => {
+                rect.width = STANDARD_PHOTO_WIDTH * scale;
+                rect.height = STANDARD_PHOTO_HEIGHT * scale;
+                rect.x = positions[i].x * scale;
+                rect.y = positions[i].y * scale;
+                rect.label = i + 1;
+                rect.originalScale = scale;
+            });
+
+            drawEditorCanvas();
+        };
+
+        window.saveManualEdit = function() {
+            if (!editorFrame || !editorRects || editorRects.length !== 4) {
+                alert('❌ Cần có đủ 4 vùng!');
+                return;
+            }
+            
+            const scale = editorRects[0].originalScale;
+            
+            // Sort by Y then X (row by row, left to right) for 2x2 grid
+            const sorted = [...editorRects].sort((a, b) => {
+                const yDiff = a.y - b.y;
+                if (Math.abs(yDiff) > 50 * scale) return yDiff;
+                return a.x - b.x;
+            });
+            
+            // Calculate common size (median)
+            const widths = sorted.map(r => r.width / scale);
+            const heights = sorted.map(r => r.height / scale);
+            const commonWidth = median(widths);
+            const commonHeight = median(heights);
+            
+            const positions = sorted.map(rect => ({
+                x: Math.round(rect.x / scale),
+                y: Math.round(rect.y / scale),
+                centerX: false,  // For 2x2 grid, use exact X position (not centered)
+                size: {
+                    width: Math.round(commonWidth),
+                    height: Math.round(commonHeight)
+                }
+            }));
+            
+            // Create result
+            const result = {
+                success: true,
+                positions: positions,
+                photoSize: { width: Math.round(commonWidth), height: Math.round(commonHeight) },
+                canvas: createCanvasFromImage(editorImage),
+                mode: 'manual',
+                status: 'manual' // Mark as manually edited
+            };
+            
+            // Save to results
+            results[editorFrame.url] = result;
+            
+            // Remove from failed list if exists
+            failedFrames = failedFrames.filter(f => f.url !== editorFrame.url);
+            const failedItem = document.querySelector(`[data-frame="${editorFrame.name}"]`);
+            if (failedItem) failedItem.remove();
+            
+            // Update preview
+            showPreview(editorFrame, result);
+            
+            // Update stats
+            const successCount = parseInt(document.getElementById('successCount').textContent);
+            const failedCount = parseInt(document.getElementById('failedCount').textContent);
+            document.getElementById('successCount').textContent = successCount + 1;
+            if (failedCount > 0) {
+                document.getElementById('failedCount').textContent = failedCount - 1;
+            }
+            
+            if (failedFrames.length === 0) {
+                document.getElementById('failedList').style.display = 'none';
+            }
+            
+            document.getElementById('previewSection').style.display = 'block';
+            
+            closeManualEditor();
+            alert('✅ Đã lưu positions thủ công!');
+        };
+
+        function createCanvasFromImage(img) {
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            return canvas;
+        }
+
+        function drawEditorCanvas() {
+            if (!editorCtx || !editorImage) return;
+            
+            // Clear and redraw image
+            editorCtx.clearRect(0, 0, editorCanvas.width, editorCanvas.height);
+            editorCtx.drawImage(editorImage, 0, 0, editorCanvas.width, editorCanvas.height);
+            
+            // Draw rectangles
+            editorRects.forEach((rect, i) => {
+                editorCtx.strokeStyle = 'red';
+                editorCtx.lineWidth = 3;
+                editorCtx.fillStyle = 'rgba(255, 0, 0, 0.2)';
+                editorCtx.fillRect(rect.x, rect.y, rect.width, rect.height);
+                editorCtx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+                
+                // Draw label
+                editorCtx.fillStyle = 'white';
+                editorCtx.strokeStyle = 'black';
+                editorCtx.lineWidth = 3;
+                editorCtx.font = 'bold 30px Arial';
+                editorCtx.strokeText(rect.label, rect.x + 10, rect.y + 40);
+                editorCtx.fillText(rect.label, rect.x + 10, rect.y + 40);
+                
+                // Draw resize handles
+                const handleSize = 10;
+                editorCtx.fillStyle = 'red';
+                // Bottom-right corner handle
+                editorCtx.fillRect(rect.x + rect.width - handleSize, rect.y + rect.height - handleSize, handleSize, handleSize);
+            });
+        }
+
+        function setupEditorInteraction() {
+            editorCanvas.onmousedown = (e) => {
+                const rect = editorCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Check for resize handle first
+                for (let i = editorRects.length - 1; i >= 0; i--) {
+                    const r = editorRects[i];
+                    const handleSize = 10;
+                    if (x >= r.x + r.width - handleSize && x <= r.x + r.width &&
+                        y >= r.y + r.height - handleSize && y <= r.y + r.height) {
+                        resizeHandle = i;
+                        return;
+                    }
+                }
+                
+                // Check for drag
+                for (let i = editorRects.length - 1; i >= 0; i--) {
+                    const r = editorRects[i];
+                    if (x >= r.x && x <= r.x + r.width && y >= r.y && y <= r.y + r.height) {
+                        dragRect = i;
+                        dragOffset = { x: x - r.x, y: y - r.y };
+                        break;
+                    }
+                }
+            };
+            
+            editorCanvas.onmousemove = (e) => {
+                const rect = editorCanvas.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                if (resizeHandle !== null) {
+                    const r = editorRects[resizeHandle];
+                    r.width = Math.max(50, x - r.x);
+                    r.height = Math.max(50, y - r.y);
+                    drawEditorCanvas();
+                } else if (dragRect !== null) {
+                    const r = editorRects[dragRect];
+                    r.x = x - dragOffset.x;
+                    r.y = y - dragOffset.y;
+                    drawEditorCanvas();
+                }
+            };
+            
+            editorCanvas.onmouseup = () => {
+                dragRect = null;
+                resizeHandle = null;
+            };
+            
+            editorCanvas.onmouseleave = () => {
+                dragRect = null;
+                resizeHandle = null;
+            };
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+    </script>
+</body>
+</html>

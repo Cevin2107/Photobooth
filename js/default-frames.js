@@ -511,6 +511,88 @@ export const DEFAULT_FRAMES_JSON = [
   "url": "https://cdn.freehihi.com/68ab39da93cd1.png",
   "index": 21
   },
+
+  // 2x2 frames
+  {
+  "name": "Hello Kitty (gốc)",
+  "url": "https://cdn.freehihi.com/68c400b3d9470.png",
+  "index": 0
+},
+{
+  "name": "BOC BAT HO (gốc)",
+  "url": "https://cdn.freehihi.com/6906cc4555ec0.png",
+  "index": 1
+},
+{
+  "name": "Amazing (gốc)",
+  "url": "https://cdn.freehihi.com/68c3fdcb527e5.png",
+  "index": 2
+},
+{
+  "name": "Basic-2 (gốc)",
+  "url": "https://cdn.freehihi.com/68df3ed02d775.png",
+  "index": 3
+},
+{
+  "name": "XinhhAirlines (gốc)",
+  "url": "https://cdn.freehihi.com/68dcc60a4897c.png",
+  "index": 4
+},
+{
+  "name": "Basic-6 (gốc)",
+  "url": "https://cdn.freehihi.com/68df435872c67.png",
+  "index": 5
+},
+{
+  "name": "Báo (gốc)",
+  "url": "https://cdn.freehihi.com/6908bc93176dd.png",
+  "index": 6
+},
+{
+  "name": "Basic-1 (gốc)",
+  "url": "https://cdn.freehihi.com/68df3f19d9d3f.png",
+  "index": 7
+},
+{
+  "name": "FCE Xanh (gốc)",
+  "url": "https://cdn.freehihi.com/69030f971a330.png",
+  "index": 8
+},
+{
+  "name": "Basic-3 (gốc)",
+  "url": "https://cdn.freehihi.com/68df3e1e7dabf.png",
+  "index": 9
+},
+{
+  "name": "Basic-4 (gốc)",
+  "url": "https://cdn.freehihi.com/68df3e1149dce.png",
+  "index": 10
+},
+{
+  "name": "Magazine (gốc)",
+  "url": "https://cdn.freehihi.com/69097d8bcc7b7.png",
+  "index": 11
+},
+{
+  "name": "FCE Vàng (gốc)",
+  "url": "https://cdn.freehihi.com/69030f9f912f3.png",
+  "index": 12
+},
+{
+  "name": "Basic-5 (gốc)",
+  "url": "https://cdn.freehihi.com/68df3dfdefc22.png",
+  "index": 13
+},
+{
+  "name": "Basic-7 (gốc)",
+  "url": "https://cdn.freehihi.com/68df437c5f891.png",
+  "index": 14
+},
+{
+  "name": "Retro Windows (gốc)",
+  "url": "https://cdn.freehihi.com/68d98e7b4884e.png",
+  "index": 15
+},
 ];
 
 // ============================================
@@ -531,10 +613,21 @@ export function loadDefaultFrames() {
         return true;
     } 
     
-    // Nếu đã có frames
+    // Nếu đã có frames, check xem có cần update không
     if (existingFrames) {
         const existing = JSON.parse(existingFrames);
         console.log(`ℹ️ External frames already loaded (${existing.length} frames)`);
+        
+        // Check if we have more frames in default-frames.js
+        if (DEFAULT_FRAMES_JSON.length > existing.length) {
+            console.warn(`⚠️ Found ${DEFAULT_FRAMES_JSON.length - existing.length} new frames in default-frames.js!`);
+            console.log(`🔄 Updating localStorage with ${DEFAULT_FRAMES_JSON.length} frames...`);
+            localStorage.setItem('photobooth_external_frames', JSON.stringify(DEFAULT_FRAMES_JSON));
+            localStorage.setItem('photobooth_external_frames_timestamp', Date.now().toString());
+            console.log('✅ Frames updated successfully!');
+            return true;
+        }
+        
         return false;
     }
     

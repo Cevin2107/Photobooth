@@ -10,6 +10,9 @@ export function changeLayout(layout, max) {
     // Reset photos array
     STATE.photos = new Array(6).fill(null);
     
+    // Update body data-layout for CSS targeting
+    document.body.setAttribute('data-layout', layout);
+    
     // Update grid class
     const photoSlots = document.getElementById('photoSlots');
     photoSlots.className = `layout-${layout}`;

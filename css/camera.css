@@ -9,6 +9,26 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
+/* Crop video preview to match frame aspect ratios */
+#video {
+    object-fit: cover;
+}
+
+/* Layout 2x2: Frame có tỷ lệ 3:4 (dọc) - crop video preview */
+body[data-layout="2x2"] #video {
+    aspect-ratio: 3/4;
+}
+
+/* Layout 2x3: Frame có tỷ lệ 522:391 ≈ 4:3 (ngang) - giữ nguyên */
+body[data-layout="2x3"] #video {
+    aspect-ratio: 522/391;
+}
+
+/* Layout 1x4: Keep normal 4:3 ratio */
+body[data-layout="1x4"] #video {
+    aspect-ratio: 4/3;
+}
+
 #video.flipped, #canvas.flipped {
     transform: scaleX(1);
 }
@@ -203,11 +223,11 @@
 }
 
 #photoSlots.layout-2x2 .photo-slot {
-    aspect-ratio: 1/1;
+    aspect-ratio: 3/4;  /* 532×705 - portrait/dọc */
 }
 
 #photoSlots.layout-2x3 .photo-slot {
-    aspect-ratio: 3/4;
+    aspect-ratio: 522/391;  /* 522×391 - landscape/ngang */
 }
 
 .photo-slot img {

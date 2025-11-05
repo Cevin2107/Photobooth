@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Frame Position Detector</title>
+    <title>Frame Position Detector - Layout 2x3</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -72,18 +72,23 @@
 </head>
 <body>
     <div class="container">
-        <h1><i class="fas fa-crosshairs"></i> Frame Position Auto-Detector</h1>
+        <h1><i class="fas fa-crosshairs"></i> Frame Position Detector - Layout 2x3</h1>
         
         <div class="section">
             <h2>📋 Hướng dẫn</h2>
             <div class="info-box">
-                <strong>Tool này sẽ:</strong><br>
+                <strong>Tool này dành cho LAYOUT 2x3:</strong><br>
+                • Frame dimensions: 1120 x 1368 px (6 slots, 2x3 grid)<br>
+                • Hoặc frames lớn hơn với cùng tỷ lệ<br>
+                • Tool sẽ tự động filter và chỉ hiển thị frames 2x3<br><br>
+                <strong>Quy trình:</strong><br>
                 1. Load tất cả frames từ <code>default-frames.js</code><br>
-                2. Scan từng frame để tìm vùng transparent (alpha = 0)<br>
-                3. Detect 4 photo slots (cùng kích thước)<br>
-                4. Generate positions config tự động<br>
-                5. Preview kết quả với overlay màu đỏ<br>
-                6. Export JSON để update vào code
+                2. Filter frames theo aspect ratio ~0.819 hoặc dimension 1120×1368 ±100px<br>
+                3. Scan từng frame để tìm vùng transparent<br>
+                4. Detect 6 photo slots (2 columns x 3 rows)<br>
+                5. Generate positions config tự động<br>
+                6. Preview kết quả với overlay màu đỏ<br>
+                7. Export JSON để update vào <code>frame-positions-2x3.js</code>
             </div>
             
             <div class="detection-mode">
@@ -158,7 +163,8 @@
             <h2>✅ Generated Positions JSON</h2>
             <div class="alert alert-success">
                 <strong>Đã generate cho <span id="selectedCount">0</span> frames được chọn</strong><br>
-                Copy JSON bên dưới và paste vào <code>frames.js</code> trong hàm <code>loadExternalFrames()</code>
+                <strong>⚠️ Cách paste:</strong> Copy JSON bên dưới và paste <strong>THAY THẾ nội dung bên trong</strong> <code>export const FRAME_POSITIONS_2X3 = { ... }</code> trong file <code>js/frames/frame-positions-2x3.js</code><br>
+                <strong>❌ KHÔNG</strong> paste cả khối <code>{ ... }</code> vào bên trong <code>{ }</code> có sẵn!
             </div>
             <div id="resultBox" class="result-box"></div>
             <button class="btn-success" onclick="copyResult()">
@@ -203,12 +209,26 @@
     </div>
 
     <script type="module">
-        import { DEFAULT_FRAMES_JSON } from './js/default-frames.js';
+        import { DEFAULT_FRAMES_JSON } from '../../js/default-frames.js';
 
         let isRunning = false;
         let results = {};
         let failedFrames = [];
         let frameElements = {}; // Store frame elements by URL
+        
+        // Filter frames by layout (2x3 only)
+        // Accepts: 1120x1368 ±100px OR aspect ratio 0.819 ±5% (for larger frames)
+        const LAYOUT_2X3_FRAMES = DEFAULT_FRAMES_JSON.filter(frame => {
+            // If frame has layout metadata, use it
+            if (frame.layout) {
+                return frame.layout === '2x3';
+            }
+            // Otherwise, include all frames and filter by dimensions during detection
+            return true;
+        });
+
+        console.log(`📊 Total frames: ${DEFAULT_FRAMES_JSON.length}`);
+        console.log(`📊 Frames for 2x3 layout: ${LAYOUT_2X3_FRAMES.length}`);
         
         // Manual editor state
         let editorFrame = null;
@@ -237,12 +257,13 @@
             let processed = 0;
             let success = 0;
             let failed = 0;
+            let skipped = 0; // Frames not matching 2x3 dimensions
 
-            for (let i = 0; i < DEFAULT_FRAMES_JSON.length; i++) {
+            for (let i = 0; i < LAYOUT_2X3_FRAMES.length; i++) {
                 if (!isRunning) break;
 
-                const frame = DEFAULT_FRAMES_JSON[i];
-                const percent = Math.round(((i + 1) / DEFAULT_FRAMES_JSON.length) * 100);
+                const frame = LAYOUT_2X3_FRAMES[i];
+                const percent = Math.round(((i + 1) / LAYOUT_2X3_FRAMES.length) * 100);
                 
                 document.getElementById('progressBar').style.width = percent + '%';
                 document.getElementById('progressBar').textContent = percent + '%';
@@ -250,7 +271,12 @@
 
                 try {
                     const result = await detectFramePositions(frame, mode);
-                    if (result.success) {
+                    
+                    // Check if frame matches 2x3 dimensions
+                    if (result.skipped) {
+                        skipped++;
+                        console.log(`⏭️ Skipped ${frame.name}: Not 2x3 layout (${result.width}x${result.height})`);
+                    } else if (result.success) {
                         results[frame.url] = result;
                         results[frame.url].status = 'success'; // Mark as auto-detected
                         success++;
@@ -402,14 +428,46 @@
                     const canvas = document.createElement('canvas');
                     canvas.width = img.width;
                     canvas.height = img.height;
+                    
+                    // Check if frame matches 2x3 layout:
+                    // Option 1: Dimension check - 1120x1368 (±100px tolerance)
+                    const dimensionMatch = Math.abs(img.width - 1120) <= 100 && Math.abs(img.height - 1368) <= 100;
+                    
+                    // Option 2: Aspect ratio check - 0.819 (±5% tolerance for all sizes)
+                    const targetRatio = 1120 / 1368; // ≈ 0.819
+                    const actualRatio = img.width / img.height;
+                    const ratioDiff = Math.abs(actualRatio - targetRatio) / targetRatio;
+                    const ratioMatch = ratioDiff <= 0.05; // 5% tolerance
+                    
+                    const is2x3 = dimensionMatch || ratioMatch;
+                    
+                    // Debug logging
+                    if (!is2x3) {
+                        console.log(`🔍 Checking ${frame.name}: ${img.width}x${img.height}`);
+                        console.log(`   Target ratio: ${targetRatio.toFixed(4)}, Actual: ${actualRatio.toFixed(4)}, Diff: ${(ratioDiff * 100).toFixed(2)}%`);
+                        console.log(`   Dimension match: ${dimensionMatch}, Ratio match: ${ratioMatch}`);
+                    }
+                    
+                    if (!is2x3) {
+                        resolve({
+                            success: false,
+                            skipped: true,
+                            width: img.width,
+                            height: img.height,
+                            positions: []
+                        });
+                        return;
+                    }
+                    
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0);
 
                     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-                    const positions = findTransparentSlots(imageData, canvas.width, canvas.height, mode);
+                    const positions = findTransparentSlots(imageData, canvas.width, canvas.height, mode, 6); // 6 slots for 2x3
 
                     resolve({
-                        success: positions.length === 4,
+                        success: positions.length === 6,
+                        skipped: false,
                         positions: positions,
                         photoSize: positions.length > 0 ? positions[0].size : null,
                         canvas: canvas,
@@ -418,14 +476,14 @@
                 };
 
                 img.onerror = () => {
-                    resolve({ success: false, positions: [] });
+                    resolve({ success: false, skipped: false, positions: [] });
                 };
 
                 img.src = frame.url;
             });
         }
 
-        function findTransparentSlots(imageData, width, height, mode) {
+        function findTransparentSlots(imageData, width, height, mode, slotCount = 4) {
             const data = imageData.data;
             const slots = [];
             
@@ -445,18 +503,23 @@
             // Find rectangular regions
             const regions = findRectangularRegions(transparentMap, width, height);
             
-            // Get 4 largest regions
+            // Get N largest regions based on slotCount
             regions.sort((a, b) => b.area - a.area);
-            const top4 = regions.slice(0, 4);
+            const topN = regions.slice(0, slotCount);
             
-            if (top4.length < 4) return []; // Not enough slots detected
+            if (topN.length < slotCount) return []; // Not enough slots detected
 
-            // Sort by Y position (top to bottom)
-            top4.sort((a, b) => a.y - b.y);
+            // Sort by Y position (top to bottom), then X (left to right)
+            topN.sort((a, b) => {
+                if (Math.abs(a.y - b.y) < 50) { // Same row (tolerance 50px)
+                    return a.x - b.x; // Sort by X
+                }
+                return a.y - b.y; // Sort by Y
+            });
 
             // Calculate common size (use median)
-            const widths = top4.map(r => r.width);
-            const heights = top4.map(r => r.height);
+            const widths = topN.map(r => r.width);
+            const heights = topN.map(r => r.height);
             let commonWidth = median(widths);
             let commonHeight = median(heights);
 
@@ -468,7 +531,7 @@
             }
 
             // Generate positions with common size
-            return top4.map((region, index) => {
+            return topN.map((region, index) => {
                 let x = region.x;
                 let y = region.y;
                 
@@ -482,7 +545,7 @@
                 return {
                     x: Math.round(x),
                     y: Math.round(y),
-                    centerX: true,
+                    centerX: false,  // For 2x3 grid, use exact X position (not centered)
                     size: {
                         width: Math.round(commonWidth),
                         height: Math.round(commonHeight)
@@ -695,19 +758,25 @@
                         label: i + 1
                     }));
                 } else {
-                    // Default positions - evenly spaced
-                    const photoWidth = 771 * scale;
-                    const photoHeight = 565 * scale;
-                    const spacing = (editorCanvas.height - photoHeight * 4) / 5;
+                    // Default positions for 2x3 layout - evenly spaced
+                    const photoWidth = 522 * scale;
+                    const photoHeight = 391 * scale;
+                    const horizontalSpacing = (editorCanvas.width - photoWidth * 2) / 3;
+                    const verticalSpacing = (editorCanvas.height - photoHeight * 3) / 4;
                     
-                    editorRects = [0, 1, 2, 3].map(i => ({
-                        x: (editorCanvas.width - photoWidth) / 2,
-                        y: spacing + (photoHeight + spacing) * i,
-                        width: photoWidth,
-                        height: photoHeight,
-                        originalScale: scale,
-                        label: i + 1
-                    }));
+                    editorRects = [0, 1, 2, 3, 4, 5].map(i => {
+                        const row = Math.floor(i / 2);  // 0, 0, 1, 1, 2, 2
+                        const col = i % 2;               // 0, 1, 0, 1, 0, 1
+                        
+                        return {
+                            x: horizontalSpacing + (photoWidth + horizontalSpacing) * col,
+                            y: verticalSpacing + (photoHeight + verticalSpacing) * row,
+                            width: photoWidth,
+                            height: photoHeight,
+                            originalScale: scale,
+                            label: i + 1
+                        };
+                    });
                 }
                 
                 drawEditorCanvas();
@@ -728,34 +797,43 @@
         };
 
         window.applyStandardSize = function() {
-            if (!editorCanvas || !editorImage || !editorRects || editorRects.length !== 4) {
-                alert('❌ Editor chưa sẵn sàng!');
+            if (!editorCanvas || !editorImage || !editorRects || editorRects.length !== 6) {
+                alert('❌ Editor chưa sẵn sàng! Cần có đủ 6 vùng cho layout 2x3.');
                 return;
             }
 
-            // Standard configuration
-            const STANDARD_PHOTO_WIDTH = 771;
-            const STANDARD_PHOTO_HEIGHT = 565;
-            const STANDARD_TOP_MARGIN = 64;
-            const STANDARD_SPACING = 47;
+            // Standard configuration for 2x3 layout (Frame: 1120x1368px)
+            const STANDARD_PHOTO_WIDTH = 522;
+            const STANDARD_PHOTO_HEIGHT = 391;
+            const STANDARD_LEFT_MARGIN = 26;
+            const STANDARD_TOP_MARGIN = 26;
+            const STANDARD_HORIZONTAL_SPACING = 24;
+            const STANDARD_VERTICAL_SPACING = 24;
 
             // Calculate scale
             const scale = editorCanvas.width / editorImage.width;
 
-            // Calculate Y positions based on standard config
-            const yPositions = [
-                STANDARD_TOP_MARGIN,
-                STANDARD_TOP_MARGIN + STANDARD_PHOTO_HEIGHT + STANDARD_SPACING,  // 64 + 565 + 47 = 676
-                STANDARD_TOP_MARGIN + (STANDARD_PHOTO_HEIGHT + STANDARD_SPACING) * 2,  // 1288
-                STANDARD_TOP_MARGIN + (STANDARD_PHOTO_HEIGHT + STANDARD_SPACING) * 3   // 1900
+            // Calculate positions for 2x3 grid (2 columns × 3 rows)
+            const positions = [
+                // Row 1
+                { x: STANDARD_LEFT_MARGIN, y: STANDARD_TOP_MARGIN },  // Photo 1: Top-Left
+                { x: STANDARD_LEFT_MARGIN + STANDARD_PHOTO_WIDTH + STANDARD_HORIZONTAL_SPACING, y: STANDARD_TOP_MARGIN },  // Photo 2: Top-Right
+                
+                // Row 2
+                { x: STANDARD_LEFT_MARGIN, y: STANDARD_TOP_MARGIN + STANDARD_PHOTO_HEIGHT + STANDARD_VERTICAL_SPACING },  // Photo 3: Middle-Left
+                { x: STANDARD_LEFT_MARGIN + STANDARD_PHOTO_WIDTH + STANDARD_HORIZONTAL_SPACING, y: STANDARD_TOP_MARGIN + STANDARD_PHOTO_HEIGHT + STANDARD_VERTICAL_SPACING },  // Photo 4: Middle-Right
+                
+                // Row 3
+                { x: STANDARD_LEFT_MARGIN, y: STANDARD_TOP_MARGIN + (STANDARD_PHOTO_HEIGHT + STANDARD_VERTICAL_SPACING) * 2 },  // Photo 5: Bottom-Left
+                { x: STANDARD_LEFT_MARGIN + STANDARD_PHOTO_WIDTH + STANDARD_HORIZONTAL_SPACING, y: STANDARD_TOP_MARGIN + (STANDARD_PHOTO_HEIGHT + STANDARD_VERTICAL_SPACING) * 2 }  // Photo 6: Bottom-Right
             ];
 
             // Apply to all rectangles
             editorRects.forEach((rect, i) => {
                 rect.width = STANDARD_PHOTO_WIDTH * scale;
                 rect.height = STANDARD_PHOTO_HEIGHT * scale;
-                rect.y = yPositions[i] * scale;
-                rect.x = (editorCanvas.width - rect.width) / 2; // Center horizontally
+                rect.x = positions[i].x * scale;
+                rect.y = positions[i].y * scale;
                 rect.label = i + 1;
                 rect.originalScale = scale;
             });
@@ -764,15 +842,19 @@
         };
 
         window.saveManualEdit = function() {
-            if (!editorFrame || !editorRects || editorRects.length !== 4) {
-                alert('❌ Cần có đủ 4 vùng!');
+            if (!editorFrame || !editorRects || editorRects.length !== 6) {
+                alert('❌ Cần có đủ 6 vùng cho layout 2x3!');
                 return;
             }
             
             const scale = editorRects[0].originalScale;
             
-            // Sort by Y position
-            const sorted = [...editorRects].sort((a, b) => a.y - b.y);
+            // Sort by Y then X (row by row, left to right)
+            const sorted = [...editorRects].sort((a, b) => {
+                const yDiff = a.y - b.y;
+                if (Math.abs(yDiff) > 50 * scale) return yDiff;
+                return a.x - b.x;
+            });
             
             // Calculate common size (median)
             const widths = sorted.map(r => r.width / scale);
@@ -783,7 +865,7 @@
             const positions = sorted.map(rect => ({
                 x: Math.round(rect.x / scale),
                 y: Math.round(rect.y / scale),
-                centerX: true,
+                centerX: false,  // For 2x3 grid, use exact X position (not centered)
                 size: {
                     width: Math.round(commonWidth),
                     height: Math.round(commonHeight)

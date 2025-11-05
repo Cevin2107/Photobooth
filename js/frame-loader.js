@@ -1,5 +1,5 @@
 // Frame Loader Module - Load frames from external source
-import { FRAMES } from './frames.js';
+import { FRAMES } from './frames/frames.js';
 
 const CACHE_KEY = 'photobooth_external_frames';
 const CACHE_TIMESTAMP_KEY = 'photobooth_external_frames_timestamp';

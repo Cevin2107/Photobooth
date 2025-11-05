@@ -1,7 +1,7 @@
 // UI Module
 import { STATE } from './config.js';
 import { canvas } from './camera.js';
-import { applyFrameAndDownload } from './frames.js';
+import { applyFrameAndDownload } from './frames/frames.js';
 
 // Update photo slots display
 export function updatePhotoSlots() {

@@ -5,7 +5,7 @@ import { initFilterButtons } from './filters.js';
 import { initLayoutButtons } from './layouts.js';
 import { deletePhoto, openSwapModal, closeSwapModal, downloadPhotos } from './ui.js';
 import { initCameraSelection, refreshCameraList } from './camera-selector.js';
-import { openFrameSelector, closeFrameSelector, loadExternalFrames, needsCacheRefresh } from './frames.js';
+import { openFrameSelector, closeFrameSelector, loadExternalFrames, needsCacheRefresh, forceRedetectLayouts } from './frames/frames.js';
 import { loadDefaultFrames } from './default-frames.js';
 
 // Initialize app
@@ -19,9 +19,22 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.log('✅ Default frames loaded from code');
     }
     
+    // Debug: Check frame counts
+    import('./default-frames.js').then(m => {
+        const localFrames = localStorage.getItem('photobooth_external_frames');
+        const localCount = localFrames ? JSON.parse(localFrames).length : 0;
+        console.log(`📊 Frame count check:`);
+        console.log(`  - default-frames.js: ${m.DEFAULT_FRAMES_JSON.length} frames`);
+        console.log(`  - localStorage: ${localCount} frames`);
+        if (localCount < m.DEFAULT_FRAMES_JSON.length) {
+            console.warn(`⚠️ localStorage has fewer frames! Clear localStorage to reload.`);
+            console.warn(`💡 Run: localStorage.clear(); location.reload();`);
+        }
+    });
+    
     // Load external frames from cache/localStorage
     console.log('📦 Loading external frames...');
-    const frameCount = loadExternalFrames();
+    const frameCount = await loadExternalFrames();
     console.log(`✅ Loaded ${frameCount} external frames`);
     
     // Check if cache needs refresh
@@ -80,9 +93,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.closeSwapModal = closeSwapModal;
     window.openFrameSelector = openFrameSelector;
     window.closeFrameSelector = closeFrameSelector;
+    window.forceRedetectLayouts = forceRedetectLayouts; // Debug helper
     
     console.log('App.js: Initialization complete');
     console.log('window.openFrameSelector:', typeof window.openFrameSelector);
+    console.log('💡 Debug: Run window.forceRedetectLayouts() to re-detect all frame layouts');
     
     // Dispatch custom event to signal app is ready
     window.dispatchEvent(new CustomEvent('appReady'));

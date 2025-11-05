@@ -6,15 +6,12 @@ import { video } from './camera.js';
 export function setFilter(filterName) {
     STATE.currentFilter = filterName;
     
-    // Update active button (support all filter styles)
-    document.querySelectorAll('.filter-btn, .filter-compact-item, .modern-filter-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
+    // Update active button (all filter button styles)
+    const filterElements = document.querySelectorAll('.filter-btn, .filter-compact-item, .modern-filter-btn');
+    filterElements.forEach(btn => btn.classList.remove('active'));
     
-    const filterElement = document.querySelector(`[data-filter="${filterName}"]`);
-    if (filterElement) {
-        filterElement.classList.add('active');
-    }
+    const activeElement = document.querySelector(`[data-filter="${filterName}"]`);
+    activeElement?.classList.add('active');
     
     // Apply filter to video preview
     video.style.filter = CONFIG.filters[filterName].filter || 'none';
@@ -22,27 +19,8 @@ export function setFilter(filterName) {
 
 // Initialize filter buttons
 export function initFilterButtons() {
-    // Old style filter buttons
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const filterName = this.dataset.filter;
-            setFilter(filterName);
-        });
-    });
-    
-    // Compact filter items
-    document.querySelectorAll('.filter-compact-item').forEach(item => {
-        item.addEventListener('click', function() {
-            const filterName = this.dataset.filter;
-            setFilter(filterName);
-        });
-    });
-    
-    // Modern filter buttons
-    document.querySelectorAll('.modern-filter-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const filterName = this.dataset.filter;
-            setFilter(filterName);
-        });
+    const filterButtons = document.querySelectorAll('.filter-btn, .filter-compact-item, .modern-filter-btn');
+    filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => setFilter(btn.dataset.filter));
     });
 }

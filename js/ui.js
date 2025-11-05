@@ -3,15 +3,27 @@ import { STATE } from './config.js';
 import { canvas } from './camera.js';
 import { applyFrameAndDownload } from './frames/frames.js';
 
+// Cache DOM elements
+const elements = {
+    captureBtn: document.getElementById('captureBtn'),
+    autoCaptureBtn: document.getElementById('autoCaptureBtn'),
+    resetBtn: document.getElementById('resetBtn'),
+    downloadBtn: document.getElementById('downloadBtn'),
+    photoCount: document.getElementById('photoCount'),
+    swapModal: document.getElementById('swapModal'),
+    swapOptions: document.getElementById('swapOptions')
+};
+
 // Update photo slots display
 export function updatePhotoSlots() {
     const slots = document.querySelectorAll('.photo-slot');
     slots.forEach((slot, index) => {
+        const hasPhoto = STATE.photos[index];
         let img = slot.querySelector('img');
         const deleteBtn = slot.querySelector('.delete-btn');
         const swapBtn = slot.querySelector('.swap-btn');
         
-        if (STATE.photos[index]) {
+        if (hasPhoto) {
             if (!img) {
                 img = document.createElement('img');
                 slot.innerHTML = '';
@@ -19,7 +31,7 @@ export function updatePhotoSlots() {
                 slot.appendChild(deleteBtn);
                 slot.appendChild(swapBtn);
             }
-            img.src = STATE.photos[index];
+            img.src = hasPhoto;
             slot.classList.add('has-photo');
         } else {
             slot.innerHTML = '<i class="fas fa-image text-pink-300 text-4xl"></i>';
@@ -33,9 +45,8 @@ export function updatePhotoSlots() {
 // Update photo count
 export function updatePhotoCount() {
     const count = STATE.photos.filter(p => p !== null).length;
-    const photoCountEl = document.getElementById('photoCount');
-    if (photoCountEl) {
-        photoCountEl.textContent = `${count}/${STATE.maxPhotos}`;
+    if (elements.photoCount) {
+        elements.photoCount.textContent = `${count}/${STATE.maxPhotos}`;
     }
 }
 
@@ -45,15 +56,14 @@ export function deletePhoto(index) {
     updatePhotoSlots();
     updatePhotoCount();
     
-    // Show capture button again
-    document.getElementById('captureBtn').classList.remove('hidden');
-    document.getElementById('autoCaptureBtn').classList.remove('hidden');
-    document.getElementById('captureBtn').disabled = false;
+    elements.captureBtn?.classList.remove('hidden');
+    elements.autoCaptureBtn?.classList.remove('hidden');
+    if (elements.captureBtn) elements.captureBtn.disabled = false;
     
     // Hide reset/download if no photos
     if (STATE.photos.filter(p => p !== null).length === 0) {
-        document.getElementById('resetBtn').classList.add('hidden');
-        document.getElementById('downloadBtn').classList.add('hidden');
+        elements.resetBtn?.classList.add('hidden');
+        elements.downloadBtn?.classList.add('hidden');
     }
 }
 
@@ -61,35 +71,26 @@ export function deletePhoto(index) {
 export function swapPhotos(fromIndex, toIndex) {
     if (fromIndex === toIndex) return;
     
-    // Add animation
     const slots = document.querySelectorAll('.photo-slot');
     slots[fromIndex].style.transform = 'scale(0.8)';
     slots[toIndex].style.transform = 'scale(0.8)';
     
     setTimeout(() => {
+        // Shift photos based on direction
+        const temp = STATE.photos[fromIndex];
         if (fromIndex < toIndex) {
-            // Moving down: shift photos up
-            const temp = STATE.photos[fromIndex];
             for (let i = fromIndex; i < toIndex; i++) {
                 STATE.photos[i] = STATE.photos[i + 1];
             }
-            STATE.photos[toIndex] = temp;
         } else {
-            // Moving up: shift photos down
-            const temp = STATE.photos[fromIndex];
             for (let i = fromIndex; i > toIndex; i--) {
                 STATE.photos[i] = STATE.photos[i - 1];
             }
-            STATE.photos[toIndex] = temp;
         }
+        STATE.photos[toIndex] = temp;
         
         updatePhotoSlots();
-        
-        // Reset animation
-        slots.forEach(slot => {
-            slot.style.transform = 'scale(1)';
-        });
-        
+        slots.forEach(slot => slot.style.transform = 'scale(1)');
         closeSwapModal();
     }, 300);
 }
@@ -99,50 +100,40 @@ export function openSwapModal(fromIndex) {
     if (!STATE.photos[fromIndex]) return;
     
     STATE.swapFromIndex = fromIndex;
-    const modal = document.getElementById('swapModal');
-    const optionsContainer = document.getElementById('swapOptions');
-    optionsContainer.innerHTML = '';
     
-    // Generate swap options
+    elements.swapOptions.innerHTML = '';
     for (let i = 0; i < STATE.maxPhotos; i++) {
         const btn = document.createElement('button');
         btn.className = 'swap-option-btn';
         btn.textContent = `Ảnh ${i + 1}`;
         
-        // Disable current photo and empty slots
         if (i === fromIndex || !STATE.photos[i]) {
             btn.classList.add('disabled');
         } else {
             btn.onclick = () => swapPhotos(fromIndex, i);
         }
         
-        optionsContainer.appendChild(btn);
+        elements.swapOptions.appendChild(btn);
     }
     
-    modal.classList.add('active');
+    elements.swapModal?.classList.add('active');
 }
 
 // Close swap modal
 export function closeSwapModal() {
-    const modal = document.getElementById('swapModal');
-    modal.classList.remove('active');
+    elements.swapModal?.classList.remove('active');
     STATE.swapFromIndex = null;
 }
 
 // Download combined photo
 export async function downloadPhotos() {
-    const cellWidth = canvas.width;
-    const cellHeight = canvas.height;
-    
-    // Apply frame and get final canvas
     const finalCanvas = await applyFrameAndDownload(
         STATE.photos, 
         STATE.currentLayout, 
-        cellWidth, 
-        cellHeight
+        canvas.width, 
+        canvas.height
     );
     
-    // Download
     const link = document.createElement('a');
     link.download = `photobooth-${STATE.currentLayout}-${Date.now()}.png`;
     link.href = finalCanvas.toDataURL('image/png');

@@ -6,49 +6,64 @@ const video = document.getElementById('video');
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 
+// Cache button elements
+const buttons = {
+    start: document.getElementById('startCameraBtn'),
+    capture: document.getElementById('captureBtn'),
+    autoCapture: document.getElementById('autoCaptureBtn'),
+    flip: document.getElementById('flipCameraBtn'),
+    reset: document.getElementById('resetBtn'),
+    download: document.getElementById('downloadBtn'),
+    changeFrame: document.getElementById('changeFrameBtn')
+};
+
+// Toggle button visibility
+const toggleButtons = (show, hide) => {
+    show.forEach(btn => btn?.classList.remove('hidden'));
+    hide.forEach(btn => btn?.classList.add('hidden'));
+};
+
 // Start camera (with optional device ID)
 export async function startCamera(deviceId = null) {
     try {
-        console.log('📹 Starting camera...', deviceId ? `Device: ${deviceId}` : 'Default device');
+        console.log('📹 Starting camera...', deviceId ? `Device: ${deviceId}` : 'Default');
         
-        // If called from button click without deviceId, get it from dropdown
+        // Get device ID from dropdown if not provided
         if (!deviceId) {
             const select = document.getElementById('cameraSelect');
-            if (select && select.value) {
-                deviceId = select.value;
-            } else {
+            deviceId = select?.value;
+            if (!deviceId) {
                 alert('Vui lòng chọn camera từ danh sách!');
                 return false;
             }
         }
         
-        const constraints = deviceId 
-            ? { video: { deviceId: { exact: deviceId }, width: { ideal: 1280 }, height: { ideal: 960 } } }
-            : { video: { width: { ideal: 1280 }, height: { ideal: 960 } } };
+        const constraints = {
+            video: deviceId 
+                ? { deviceId: { exact: deviceId }, width: { ideal: 1280 }, height: { ideal: 960 } }
+                : { width: { ideal: 1280 }, height: { ideal: 960 } }
+        };
         
-        console.log('🎥 Requesting camera stream with constraints:', constraints);
+        console.log('🎥 Requesting stream:', constraints);
         
         STATE.stream = await navigator.mediaDevices.getUserMedia(constraints);
         video.srcObject = STATE.stream;
         
-        console.log('✅ Camera stream obtained successfully');
+        console.log('✅ Camera stream obtained');
         
         video.addEventListener('loadedmetadata', () => {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-            console.log(`📐 Video dimensions: ${video.videoWidth}x${video.videoHeight}`);
+            console.log(`📐 Video: ${video.videoWidth}x${video.videoHeight}`);
         });
         
-        // Save selected device
-        if (deviceId) {
-            STATE.selectedDeviceId = deviceId;
-        }
+        if (deviceId) STATE.selectedDeviceId = deviceId;
         
         // Update UI
-        document.getElementById('startCameraBtn').classList.add('hidden');
-        document.getElementById('captureBtn').classList.remove('hidden');
-        document.getElementById('autoCaptureBtn').classList.remove('hidden');
-        document.getElementById('flipCameraBtn').classList.remove('hidden');
+        toggleButtons(
+            [buttons.capture, buttons.autoCapture, buttons.flip],
+            [buttons.start]
+        );
         
         return true;
     } catch (err) {
@@ -61,11 +76,7 @@ export async function startCamera(deviceId = null) {
 // Flip camera
 export function toggleFlip() {
     STATE.isFlipped = !STATE.isFlipped;
-    if (STATE.isFlipped) {
-        video.classList.add('flipped');
-    } else {
-        video.classList.remove('flipped');
-    }
+    video.classList.toggle('flipped', STATE.isFlipped);
 }
 
 // Stop camera
@@ -79,21 +90,15 @@ export function stopCamera() {
 // Reset photos
 export function resetPhotos() {
     STATE.photos = [null, null, null, null, null, null];
-    STATE.selectedFrame = 'none'; // Reset frame selection
+    STATE.selectedFrame = 'none';
     updatePhotoSlots();
     updatePhotoCount();
     
-    document.getElementById('captureBtn').classList.remove('hidden');
-    document.getElementById('autoCaptureBtn').classList.remove('hidden');
-    document.getElementById('captureBtn').disabled = false;
-    document.getElementById('resetBtn').classList.add('hidden');
-    document.getElementById('downloadBtn').classList.add('hidden');
-    
-    // Hide change frame button
-    const changeFrameBtn = document.getElementById('changeFrameBtn');
-    if (changeFrameBtn) {
-        changeFrameBtn.classList.add('hidden');
-    }
+    buttons.capture.disabled = false;
+    toggleButtons(
+        [buttons.capture, buttons.autoCapture],
+        [buttons.reset, buttons.download, buttons.changeFrame]
+    );
 }
 
 export { video, canvas, ctx };

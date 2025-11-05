@@ -71,6 +71,7 @@ export function stopCamera() {
 // Reset photos
 export function resetPhotos() {
     STATE.photos = [null, null, null, null, null, null];
+    STATE.selectedFrame = 'none'; // Reset frame selection
     updatePhotoSlots();
     updatePhotoCount();
     
@@ -79,6 +80,12 @@ export function resetPhotos() {
     document.getElementById('captureBtn').disabled = false;
     document.getElementById('resetBtn').classList.add('hidden');
     document.getElementById('downloadBtn').classList.add('hidden');
+    
+    // Hide change frame button
+    const changeFrameBtn = document.getElementById('changeFrameBtn');
+    if (changeFrameBtn) {
+        changeFrameBtn.classList.add('hidden');
+    }
 }
 
 export { video, canvas, ctx };

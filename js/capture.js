@@ -2,6 +2,7 @@
 import { STATE, CONFIG } from './config.js';
 import { video, canvas, ctx } from './camera.js';
 import { updatePhotoSlots, updatePhotoCount } from './ui.js';
+import { openFrameSelector } from './frames.js';
 
 // Countdown function
 export async function doCountdown() {
@@ -24,8 +25,15 @@ export async function captureImage() {
     // Apply filter and capture
     ctx.filter = CONFIG.filters[STATE.currentFilter].filter || 'none';
     
-    // Always draw without flip to canvas (normal orientation)
+    // Draw with flip to match video preview
     ctx.save();
+    
+    // If video is NOT flipped (default mirror mode), flip the captured image
+    if (!STATE.isFlipped) {
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);
+    }
+    
     ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
     ctx.restore();
     
@@ -69,10 +77,31 @@ export async function singleCapture() {
     
     // Check if all photos taken
     if (STATE.photos.filter(p => p !== null).length >= STATE.maxPhotos) {
+        console.log('All photos taken! Layout:', STATE.currentLayout);
         document.getElementById('captureBtn').classList.add('hidden');
         document.getElementById('autoCaptureBtn').classList.add('hidden');
         document.getElementById('resetBtn').classList.remove('hidden');
         document.getElementById('downloadBtn').classList.remove('hidden');
+        
+        // Only show frame selector for 1x4 layout
+        if (STATE.currentLayout === '1x4') {
+            console.log('Layout is 1x4, showing frame selector...');
+            const changeFrameBtn = document.getElementById('changeFrameBtn');
+            if (changeFrameBtn) {
+                changeFrameBtn.classList.remove('hidden');
+                console.log('Change frame button shown');
+            } else {
+                console.error('Change frame button not found!');
+            }
+            
+            // Open frame selector after completing all photos
+            setTimeout(() => {
+                console.log('Calling openFrameSelector...');
+                openFrameSelector();
+            }, 500);
+        } else {
+            console.log('Layout is not 1x4, skipping frame selector');
+        }
     }
 }
 
@@ -110,9 +139,30 @@ export async function autoCapture() {
     
     // Check if all photos taken
     if (STATE.photos.filter(p => p !== null).length >= STATE.maxPhotos) {
+        console.log('All photos taken (auto)! Layout:', STATE.currentLayout);
         document.getElementById('autoCaptureBtn').classList.add('hidden');
         document.getElementById('captureBtn').classList.add('hidden');
         document.getElementById('resetBtn').classList.remove('hidden');
         document.getElementById('downloadBtn').classList.remove('hidden');
+        
+        // Only show frame selector for 1x4 layout
+        if (STATE.currentLayout === '1x4') {
+            console.log('Layout is 1x4, showing frame selector...');
+            const changeFrameBtn = document.getElementById('changeFrameBtn');
+            if (changeFrameBtn) {
+                changeFrameBtn.classList.remove('hidden');
+                console.log('Change frame button shown');
+            } else {
+                console.error('Change frame button not found!');
+            }
+            
+            // Open frame selector after completing all photos
+            setTimeout(() => {
+                console.log('Calling openFrameSelector...');
+                openFrameSelector();
+            }, 500);
+        } else {
+            console.log('Layout is not 1x4, skipping frame selector');
+        }
     }
 }

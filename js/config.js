@@ -24,7 +24,8 @@ const STATE = {
     isCapturing: false,
     isFlipped: false,
     swapFromIndex: null,
-    selectedDeviceId: null
+    selectedDeviceId: null,
+    selectedFrame: 'none'
 };
 
 export { CONFIG, STATE };

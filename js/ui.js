@@ -1,6 +1,7 @@
 // UI Module
 import { STATE } from './config.js';
 import { canvas } from './camera.js';
+import { applyFrameAndDownload } from './frames.js';
 
 // Update photo slots display
 export function updatePhotoSlots() {
@@ -19,14 +20,6 @@ export function updatePhotoSlots() {
                 slot.appendChild(swapBtn);
             }
             img.src = STATE.photos[index];
-            
-            // Apply flip state to image to match video orientation
-            if (STATE.isFlipped) {
-                img.classList.add('flipped');
-            } else {
-                img.classList.remove('flipped');
-            }
-            
             slot.classList.add('has-photo');
         } else {
             slot.innerHTML = '<i class="fas fa-image text-pink-300 text-4xl"></i>';
@@ -138,62 +131,20 @@ export function closeSwapModal() {
 
 // Download combined photo
 export async function downloadPhotos() {
-    const combinedCanvas = document.createElement('canvas');
-    const combinedCtx = combinedCanvas.getContext('2d');
-    
     const cellWidth = canvas.width;
     const cellHeight = canvas.height;
     
-    // Set canvas size based on layout
-    if (STATE.currentLayout === '1x4') {
-        combinedCanvas.width = cellWidth;
-        combinedCanvas.height = cellHeight * 4;
-    } else if (STATE.currentLayout === '2x2') {
-        combinedCanvas.width = cellWidth * 2;
-        combinedCanvas.height = cellHeight * 2;
-    } else if (STATE.currentLayout === '2x3') {
-        combinedCanvas.width = cellWidth * 3;
-        combinedCanvas.height = cellHeight * 2;
-    }
-    
-    // Background
-    combinedCtx.fillStyle = '#ffe4f0';
-    combinedCtx.fillRect(0, 0, combinedCanvas.width, combinedCanvas.height);
-    
-    // Add photos
-    const validPhotos = STATE.photos.filter(p => p !== null);
-    for (let i = 0; i < validPhotos.length; i++) {
-        const img = new Image();
-        img.src = validPhotos[i];
-        await new Promise(resolve => {
-            img.onload = () => {
-                let x, y;
-                
-                if (STATE.currentLayout === '1x4') {
-                    x = 0;
-                    y = i * cellHeight;
-                } else if (STATE.currentLayout === '2x2') {
-                    x = (i % 2) * cellWidth;
-                    y = Math.floor(i / 2) * cellHeight;
-                } else if (STATE.currentLayout === '2x3') {
-                    x = (i % 3) * cellWidth;
-                    y = Math.floor(i / 3) * cellHeight;
-                }
-                
-                combinedCtx.drawImage(img, x, y, cellWidth, cellHeight);
-                
-                // Border
-                combinedCtx.strokeStyle = '#ff69b4';
-                combinedCtx.lineWidth = 5;
-                combinedCtx.strokeRect(x, y, cellWidth, cellHeight);
-                resolve();
-            };
-        });
-    }
+    // Apply frame and get final canvas
+    const finalCanvas = await applyFrameAndDownload(
+        STATE.photos, 
+        STATE.currentLayout, 
+        cellWidth, 
+        cellHeight
+    );
     
     // Download
     const link = document.createElement('a');
     link.download = `photobooth-${STATE.currentLayout}-${Date.now()}.png`;
-    link.href = combinedCanvas.toDataURL('image/png');
+    link.href = finalCanvas.toDataURL('image/png');
     link.click();
 }

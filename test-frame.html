@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Frame Modal</title>
+    <link rel="stylesheet" href="css/frames.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        button {
+            padding: 15px 30px;
+            background: #ff1493;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Frame Modal</h1>
+    <button onclick="openModal()">Mở Modal Chọn Frame</button>
+
+    <!-- Frame Selector Modal -->
+    <div id="frameModal" class="frame-modal">
+        <div class="frame-modal-content">
+            <h3>
+                <i class="fas fa-images"></i> Chọn Khung Ảnh <i class="fas fa-sparkles"></i>
+            </h3>
+            <div class="frame-options" id="frameOptions">
+                <!-- Frame 1 -->
+                <button class="frame-option-btn active">
+                    <img src="frames/68df42a174a8d.png" alt="Frame 1">
+                    <span>Khung Classic</span>
+                </button>
+                
+                <!-- Frame 2 -->
+                <button class="frame-option-btn">
+                    <img src="frames/68df41df4934f.png" alt="Frame 2">
+                    <span>Khung Style 2</span>
+                </button>
+                
+                <!-- No Frame -->
+                <button class="frame-option-btn">
+                    <div class="frame-no-frame">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <span>Không khung</span>
+                </button>
+            </div>
+            <button class="frame-modal-close-btn" onclick="closeModal()">
+                <i class="fas fa-check"></i> Xong
+            </button>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            console.log('Opening modal...');
+            const modal = document.getElementById('frameModal');
+            modal.classList.add('active');
+            console.log('Modal classes:', modal.className);
+        }
+
+        function closeModal() {
+            console.log('Closing modal...');
+            const modal = document.getElementById('frameModal');
+            modal.classList.remove('active');
+        }
+    </script>
+</body>
+</html>

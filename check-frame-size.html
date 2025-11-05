@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Check Frame Size</title>
+    <style>
+        body {
+            padding: 20px;
+            font-family: Arial, sans-serif;
+        }
+        .info {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 8px;
+        }
+        img {
+            max-width: 100%;
+            border: 2px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+    <h1>Frame Size Checker</h1>
+    
+    <div class="info">
+        <h3>Frame 1: 68df42a174a8d.png</h3>
+        <div id="frame1Info"></div>
+        <img id="frame1" src="frames/68df42a174a8d.png">
+    </div>
+    
+    <div class="info">
+        <h3>Frame 2: 68df41df4934f.png</h3>
+        <div id="frame2Info"></div>
+        <img id="frame2" src="frames/68df41df4934f.png">
+    </div>
+
+    <script>
+        const frame1 = document.getElementById('frame1');
+        const frame2 = document.getElementById('frame2');
+
+        frame1.onload = () => {
+            const info = document.getElementById('frame1Info');
+            info.innerHTML = `
+                <strong>Kích thước:</strong> ${frame1.naturalWidth}px × ${frame1.naturalHeight}px<br>
+                <strong>Gợi ý tính toán cho 4 ảnh:</strong><br>
+                - Chiều rộng ảnh: ${frame1.naturalWidth}px (hoặc nhỏ hơn tùy padding)<br>
+                - Chiều cao mỗi ảnh: ${Math.floor((frame1.naturalHeight - 18 - 15*3) / 4)}px (nếu padding top 18px, gap 15px)
+            `;
+        };
+
+        frame2.onload = () => {
+            const info = document.getElementById('frame2Info');
+            info.innerHTML = `
+                <strong>Kích thước:</strong> ${frame2.naturalWidth}px × ${frame2.naturalHeight}px<br>
+                <strong>Gợi ý tính toán cho 4 ảnh:</strong><br>
+                - Chiều rộng ảnh: ${frame2.naturalWidth}px (hoặc nhỏ hơn tùy padding)<br>
+                - Chiều cao mỗi ảnh: ${Math.floor((frame2.naturalHeight - 18 - 15*3) / 4)}px (nếu padding top 18px, gap 15px)
+            `;
+        };
+    </script>
+</body>
+</html>

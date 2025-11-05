@@ -5,9 +5,12 @@ import { initFilterButtons } from './filters.js';
 import { initLayoutButtons } from './layouts.js';
 import { deletePhoto, openSwapModal, closeSwapModal, downloadPhotos } from './ui.js';
 import { initCameraSelection, refreshCameraList } from './camera-selector.js';
+import { openFrameSelector, closeFrameSelector } from './frames.js';
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log('App.js: Initializing...');
+    
     // Initialize modules
     initFilterButtons();
     initLayoutButtons();
@@ -23,6 +26,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('resetBtn').addEventListener('click', resetPhotos);
     document.getElementById('downloadBtn').addEventListener('click', downloadPhotos);
     
+    // Frame selector button
+    const changeFrameBtn = document.getElementById('changeFrameBtn');
+    if (changeFrameBtn) {
+        changeFrameBtn.addEventListener('click', openFrameSelector);
+        console.log('Frame selector button listener added');
+    }
+    
+    // Close frame selector button
+    const closeFrameBtn = document.getElementById('closeFrameBtn');
+    if (closeFrameBtn) {
+        closeFrameBtn.addEventListener('click', closeFrameSelector);
+        console.log('Close frame selector button listener added');
+    }
+    
+    // Download in modal button
+    const downloadInModalBtn = document.getElementById('downloadInModalBtn');
+    if (downloadInModalBtn) {
+        downloadInModalBtn.addEventListener('click', () => {
+            downloadPhotos();
+            closeFrameSelector();
+        });
+        console.log('Download in modal button listener added');
+    }
+    
     // Refresh camera list button
     const refreshBtn = document.getElementById('refreshCameraBtn');
     if (refreshBtn) {
@@ -33,6 +60,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.deletePhoto = deletePhoto;
     window.openSwapModal = openSwapModal;
     window.closeSwapModal = closeSwapModal;
+    window.openFrameSelector = openFrameSelector;
+    window.closeFrameSelector = closeFrameSelector;
+    
+    console.log('App.js: Initialization complete');
+    console.log('window.openFrameSelector:', typeof window.openFrameSelector);
+    
+    // Dispatch custom event to signal app is ready
+    window.dispatchEvent(new CustomEvent('appReady'));
     
     // Cleanup on exit
     window.addEventListener('beforeunload', stopCamera);

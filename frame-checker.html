@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔍 Frame Duplicate Checker</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+        }
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        .frame-item {
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .frame-item.duplicate {
+            background: #fee;
+            border: 2px solid #f00;
+        }
+        .frame-item.new {
+            background: #efe;
+            border: 2px solid #0a0;
+        }
+        .frame-item.existing {
+            background: #eef;
+            border: 2px solid #00a;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .stat-box {
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-box.total { background: #e0e7ff; }
+        .stat-box.existing { background: #dbeafe; }
+        .stat-box.new { background: #dcfce7; }
+        .stat-box.duplicate { background: #fee2e2; }
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+        .frame-preview {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-4xl font-bold text-center mb-6 text-purple-600">
+            <i class="fas fa-search"></i> Frame Duplicate Checker
+        </h1>
+        <p class="text-center text-gray-600 mb-8">
+            Check frames trùng lặp với code hiện tại trên production/local
+        </p>
+
+        <!-- Current Frames Info -->
+        <div class="section">
+            <h2 class="text-2xl font-bold mb-4 text-blue-600">
+                <i class="fas fa-database"></i> Frames hiện tại trong code
+            </h2>
+            <button onclick="loadCurrentFrames()" class="btn btn-primary">
+                <i class="fas fa-sync"></i> Load frames từ code
+            </button>
+            <div id="currentStats" class="stats"></div>
+            <div id="currentFramesList" class="mt-4"></div>
+        </div>
+
+        <!-- New Frames Input -->
+        <div class="section">
+            <h2 class="text-2xl font-bold mb-4 text-green-600">
+                <i class="fas fa-plus-circle"></i> Paste frames mới (JSON Array)
+            </h2>
+            <textarea id="newFramesInput" placeholder='Paste JSON array here, ví dụ:
+[
+  { "name": "Frame 1", "url": "https://cdn.freehihi.com/abc.png", "layout": "2x2" },
+  { "name": "Frame 2", "url": "https://cdn.freehihi.com/def.png", "layout": "1x4" }
+]'></textarea>
+            <button onclick="checkDuplicates()" class="btn btn-primary mt-4">
+                <i class="fas fa-check-double"></i> Check Duplicates
+            </button>
+        </div>
+
+        <!-- Results -->
+        <div id="resultsSection" class="section" style="display: none;">
+            <h2 class="text-2xl font-bold mb-4 text-purple-600">
+                <i class="fas fa-chart-bar"></i> Kết quả kiểm tra
+            </h2>
+            <div id="resultStats" class="stats"></div>
+            <div id="resultsList" class="mt-4"></div>
+            
+            <div class="mt-6 flex gap-4">
+                <button onclick="copyNewFrames()" class="btn btn-primary">
+                    <i class="fas fa-copy"></i> Copy frames mới (không trùng)
+                </button>
+                <button onclick="copyAllMerged()" class="btn btn-primary">
+                    <i class="fas fa-layer-group"></i> Copy tất cả (merged)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { DEFAULT_FRAMES_JSON } from './js/default-frames.js';
+
+        let currentFrames = [];
+        let newFrames = [];
+        let duplicates = [];
+        let uniqueNewFrames = [];
+
+        window.loadCurrentFrames = function() {
+            currentFrames = DEFAULT_FRAMES_JSON;
+            
+            const statsHtml = `
+                <div class="stat-box total">
+                    <div class="text-3xl font-bold text-purple-600">${currentFrames.length}</div>
+                    <div class="text-sm text-gray-600">Total Frames</div>
+                </div>
+                <div class="stat-box existing">
+                    <div class="text-3xl font-bold text-blue-600">${currentFrames.filter(f => f.layout === '1x4').length}</div>
+                    <div class="text-sm text-gray-600">Layout 1×4</div>
+                </div>
+                <div class="stat-box existing">
+                    <div class="text-3xl font-bold text-pink-600">${currentFrames.filter(f => f.layout === '2x2').length}</div>
+                    <div class="text-sm text-gray-600">Layout 2×2</div>
+                </div>
+                <div class="stat-box existing">
+                    <div class="text-3xl font-bold text-green-600">${currentFrames.filter(f => f.layout === '2x3').length}</div>
+                    <div class="text-sm text-gray-600">Layout 2×3</div>
+                </div>
+            `;
+            
+            document.getElementById('currentStats').innerHTML = statsHtml;
+            
+            const listHtml = currentFrames.slice(0, 10).map(frame => `
+                <div class="frame-item existing">
+                    <img src="${frame.url}" class="frame-preview" alt="${frame.name}">
+                    <div class="flex-1">
+                        <div class="font-bold">${frame.name}</div>
+                        <div class="text-sm text-gray-600">${frame.layout || 'unknown'}</div>
+                    </div>
+                </div>
+            `).join('');
+            
+            document.getElementById('currentFramesList').innerHTML = `
+                <div class="text-sm text-gray-600 mb-2">Showing first 10 frames...</div>
+                ${listHtml}
+            `;
+            
+            console.log('✅ Loaded', currentFrames.length, 'frames from code');
+        };
+
+        window.checkDuplicates = function() {
+            const input = document.getElementById('newFramesInput').value.trim();
+            
+            if (!input) {
+                alert('Vui lòng paste JSON frames vào!');
+                return;
+            }
+            
+            try {
+                newFrames = JSON.parse(input);
+                
+                if (!Array.isArray(newFrames)) {
+                    throw new Error('JSON phải là array!');
+                }
+                
+                // Check duplicates
+                duplicates = [];
+                uniqueNewFrames = [];
+                
+                const currentUrls = new Set(currentFrames.map(f => f.url));
+                
+                newFrames.forEach(frame => {
+                    if (currentUrls.has(frame.url)) {
+                        duplicates.push(frame);
+                    } else {
+                        uniqueNewFrames.push(frame);
+                    }
+                });
+                
+                // Show results
+                showResults();
+                
+            } catch (error) {
+                alert('Lỗi parse JSON: ' + error.message);
+            }
+        };
+
+        function showResults() {
+            const section = document.getElementById('resultsSection');
+            section.style.display = 'block';
+            
+            const statsHtml = `
+                <div class="stat-box total">
+                    <div class="text-3xl font-bold text-purple-600">${newFrames.length}</div>
+                    <div class="text-sm text-gray-600">Frames input</div>
+                </div>
+                <div class="stat-box new">
+                    <div class="text-3xl font-bold text-green-600">${uniqueNewFrames.length}</div>
+                    <div class="text-sm text-gray-600">Frames mới (OK)</div>
+                </div>
+                <div class="stat-box duplicate">
+                    <div class="text-3xl font-bold text-red-600">${duplicates.length}</div>
+                    <div class="text-sm text-gray-600">Trùng lặp</div>
+                </div>
+                <div class="stat-box existing">
+                    <div class="text-3xl font-bold text-blue-600">${currentFrames.length + uniqueNewFrames.length}</div>
+                    <div class="text-sm text-gray-600">Total sau khi merge</div>
+                </div>
+            `;
+            
+            document.getElementById('resultStats').innerHTML = statsHtml;
+            
+            let listHtml = '';
+            
+            if (uniqueNewFrames.length > 0) {
+                listHtml += '<h3 class="text-lg font-bold text-green-600 mb-2"><i class="fas fa-check-circle"></i> Frames mới (không trùng)</h3>';
+                listHtml += uniqueNewFrames.map(frame => `
+                    <div class="frame-item new">
+                        <img src="${frame.url}" class="frame-preview" alt="${frame.name}">
+                        <div class="flex-1">
+                            <div class="font-bold">${frame.name}</div>
+                            <div class="text-sm text-gray-600">${frame.layout || 'unknown'}</div>
+                        </div>
+                        <div class="text-green-600 font-bold">✓ NEW</div>
+                    </div>
+                `).join('');
+            }
+            
+            if (duplicates.length > 0) {
+                listHtml += '<h3 class="text-lg font-bold text-red-600 mb-2 mt-4"><i class="fas fa-exclamation-triangle"></i> Frames trùng lặp</h3>';
+                listHtml += duplicates.map(frame => `
+                    <div class="frame-item duplicate">
+                        <img src="${frame.url}" class="frame-preview" alt="${frame.name}">
+                        <div class="flex-1">
+                            <div class="font-bold">${frame.name}</div>
+                            <div class="text-sm text-gray-600">${frame.layout || 'unknown'}</div>
+                        </div>
+                        <div class="text-red-600 font-bold">✗ DUPLICATE</div>
+                    </div>
+                `).join('');
+            }
+            
+            document.getElementById('resultsList').innerHTML = listHtml;
+            
+            // Scroll to results
+            section.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        window.copyNewFrames = function() {
+            if (uniqueNewFrames.length === 0) {
+                alert('Không có frames mới nào!');
+                return;
+            }
+            
+            const json = JSON.stringify(uniqueNewFrames, null, 2);
+            navigator.clipboard.writeText(json).then(() => {
+                alert(`✅ Đã copy ${uniqueNewFrames.length} frames mới!\n\nPaste vào js/default-frames.js`);
+            });
+        };
+
+        window.copyAllMerged = function() {
+            const merged = [...currentFrames, ...uniqueNewFrames];
+            const json = JSON.stringify(merged, null, 2);
+            navigator.clipboard.writeText(json).then(() => {
+                alert(`✅ Đã copy ${merged.length} frames (merged)!\n\nPaste vào js/default-frames.js`);
+            });
+        };
+
+        // Auto load on page load
+        window.addEventListener('load', () => {
+            loadCurrentFrames();
+        });
+    </script>
+</body>
+</html>

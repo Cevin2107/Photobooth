@@ -86,37 +86,145 @@
                     </div>
                 </div>
             </a>
+
+            <!-- Frame Manager -->
+            <a href="frame-manager.html" class="tool-card block">
+                <div class="text-center">
+                    <div class="text-5xl mb-4">🖼️</div>
+                    <h2 class="text-2xl font-bold mb-2 text-green-600">
+                        Frame Manager
+                    </h2>
+                    <p class="text-gray-600 mb-4">
+                        Import frames từ JSON (legacy tool)
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-upload"></i> Basic import<br>
+                        Check duplicate trong input
+                    </div>
+                </div>
+            </a>
+
+            <!-- Frame Checker (NEW) -->
+            <a href="frame-checker.html" class="tool-card block" style="border: 3px solid #10b981;">
+                <div class="text-center">
+                    <div class="text-5xl mb-4">🔍</div>
+                    <h2 class="text-2xl font-bold mb-2 text-green-600">
+                        Frame Checker ⭐
+                    </h2>
+                    <p class="text-gray-600 mb-4">
+                        Check duplicate với code hiện tại
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-code"></i> Compare với production<br>
+                        Auto-filter duplicates
+                    </div>
+                </div>
+            </a>
+
+            <!-- Bookmarklet -->
+            <a href="bookmarklet.html" class="tool-card block">
+                <div class="text-center">
+                    <div class="text-5xl mb-4">🔖</div>
+                    <h2 class="text-2xl font-bold mb-2 text-orange-600">
+                        Bookmarklet
+                    </h2>
+                    <p class="text-gray-600 mb-4">
+                        Extract frames từ freehihi.com (1-click)
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-magic"></i> Drag to bookmark bar<br>
+                        Auto-extract frames JSON
+                    </div>
+                </div>
+            </a>
+
+            <!-- API Frame Fetcher -->
+            <a href="api-frame-fetcher.html" class="tool-card block">
+                <div class="text-center">
+                    <div class="text-5xl mb-4">🌐</div>
+                    <h2 class="text-2xl font-bold mb-2 text-indigo-600">
+                        API Fetcher
+                    </h2>
+                    <p class="text-gray-600 mb-4">
+                        Fetch frames từ freehihi.com API
+                    </p>
+                    <div class="text-sm text-gray-500">
+                        <i class="fas fa-download"></i> Direct API fetch<br>
+                        Export JSON format
+                    </div>
+                </div>
+            </a>
         </div>
 
         <div class="tool-card mb-8">
             <h2 class="text-2xl font-bold mb-4 text-purple-600">
                 <i class="fas fa-book"></i> Hướng dẫn sử dụng
             </h2>
-            <ol class="space-y-3 text-gray-700">
-                <li>
-                    <strong>1. Chọn detector</strong> theo layout bạn muốn detect (1×4, 2×2, hoặc 2×3)
-                </li>
-                <li>
-                    <strong>2. Auto-detect</strong> - Tool sẽ tự động scan tất cả frames và phát hiện vị trí khung ảnh
-                </li>
-                <li>
-                    <strong>3. Manual edit</strong> - Nếu auto-detect fail, có thể edit thủ công bằng drag & drop
-                </li>
-                <li>
-                    <strong>4. Copy JSON</strong> - Click "Copy Result JSON" để copy toàn bộ config
-                </li>
-                <li>
-                    <strong>5. Update code</strong> - Paste vào file tương ứng:
-                    <ul class="ml-6 mt-2 text-sm">
-                        <li>→ <code class="bg-gray-100 px-2 py-1 rounded">js/frames/frame-positions-1x4.js</code></li>
-                        <li>→ <code class="bg-gray-100 px-2 py-1 rounded">js/frames/frame-positions-2x2.js</code></li>
-                        <li>→ <code class="bg-gray-100 px-2 py-1 rounded">js/frames/frame-positions-2x3.js</code></li>
-                    </ul>
-                </li>
-                <li>
-                    <strong>6. Deploy</strong> - Push code lên GitHub, Vercel sẽ tự động deploy
-                </li>
-            </ol>
+            
+            <div class="mb-6">
+                <h3 class="text-lg font-bold mb-2 text-pink-600">
+                    <i class="fas fa-images"></i> Thêm frames mới
+                </h3>
+                <ol class="space-y-2 text-gray-700 text-sm ml-4">
+                    <li>
+                        <strong>Option 1: Bookmarklet (Nhanh nhất)</strong>
+                        <ul class="ml-4 mt-1">
+                            <li>1. Mở <code class="bg-gray-100 px-2 py-1 rounded">bookmarklet.html</code></li>
+                            <li>2. Kéo button "🎨 Extract Frames" lên bookmark bar</li>
+                            <li>3. Vào https://photo.freehihi.com/viewframe</li>
+                            <li>4. Scroll xuống hết → Click bookmarklet → JSON auto copy!</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Option 2: API Fetcher</strong>
+                        <ul class="ml-4 mt-1">
+                            <li>1. Mở <code class="bg-gray-100 px-2 py-1 rounded">api-frame-fetcher.html</code></li>
+                            <li>2. Nhập page number → Fetch → Copy JSON</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <strong>Import frames:</strong>
+                        <ul class="ml-4 mt-1">
+                            <li>1. Mở <code class="bg-gray-100 px-2 py-1 rounded">frame-checker.html</code> ⭐ (Khuyến nghị)</li>
+                            <li>2. Click "Load frames từ code" → Xem frames hiện tại</li>
+                            <li>3. Paste JSON mới → Check duplicates</li>
+                            <li>4. Copy frames mới (không trùng) hoặc merged</li>
+                            <li>5. Paste vào <code class="bg-gray-100 px-2 py-1 rounded">js/default-frames.js</code></li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <div class="mb-6">
+                <h3 class="text-lg font-bold mb-2 text-blue-600">
+                    <i class="fas fa-crosshairs"></i> Detect frame positions
+                </h3>
+                <ol class="space-y-2 text-gray-700 text-sm ml-4">
+                    <li><strong>1. Chọn detector</strong> theo layout (1×4, 2×2, hoặc 2×3)</li>
+                    <li><strong>2. Auto-detect</strong> - Tool tự động scan & detect positions</li>
+                    <li><strong>3. Manual edit</strong> - Nếu fail, drag & drop để chỉnh</li>
+                    <li><strong>4. Copy JSON</strong> - Click "Copy Result JSON"</li>
+                    <li>
+                        <strong>5. Update code</strong> - Paste vào file tương ứng:
+                        <ul class="ml-6 mt-2">
+                            <li>→ <code class="bg-gray-100 px-2 py-1 rounded">js/frames/frame-positions-1x4.js</code></li>
+                            <li>→ <code class="bg-gray-100 px-2 py-1 rounded">js/frames/frame-positions-2x2.js</code></li>
+                            <li>→ <code class="bg-gray-100 px-2 py-1 rounded">js/frames/frame-positions-2x3.js</code></li>
+                        </ul>
+                    </li>
+                </ol>
+            </div>
+
+            <div>
+                <h3 class="text-lg font-bold mb-2 text-green-600">
+                    <i class="fas fa-rocket"></i> Deploy updates
+                </h3>
+                <ol class="space-y-2 text-gray-700 text-sm ml-4">
+                    <li><strong>1. Commit changes:</strong> <code class="bg-gray-100 px-2 py-1 rounded">git add . && git commit -m "Update frames"</code></li>
+                    <li><strong>2. Push to GitHub:</strong> <code class="bg-gray-100 px-2 py-1 rounded">git push</code></li>
+                    <li><strong>3. Vercel auto-deploy</strong> - Wait ~30s, site updated! 🎉</li>
+                </ol>
+            </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -382,7 +382,8 @@
     </div>
 
     <script type="module">
-        import { DEFAULT_FRAMES_JSON } from './js/default-frames.js';
+        // Cache busting: Update version này mỗi khi deploy (increment số)
+        import { DEFAULT_FRAMES_JSON } from './js/default-frames.js?v=1';
 
         let currentFrames = [];
         let newFrames = [];

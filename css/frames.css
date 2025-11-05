@@ -35,12 +35,14 @@
     background: linear-gradient(135deg, #fff 0%, #ffe4f0 100%);
     border-radius: 24px;
     padding: 30px;
-    max-width: 900px;
-    width: 100%;
+    max-width: 1400px;
+    width: 95%;
     max-height: 90vh;
-    overflow-y: auto;
     box-shadow: 0 20px 60px rgba(255, 105, 180, 0.3);
     animation: slideUp 0.4s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 }
 
 @keyframes slideUp {
@@ -59,7 +61,7 @@
     font-weight: 700;
     color: #ff1493;
     text-align: center;
-    margin-bottom: 25px;
+    margin-bottom: 0;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -70,17 +72,70 @@
     font-size: 28px;
 }
 
+/* Two Column Layout: Preview Left, Frames Right */
+.frame-selector-layout {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 20px;
+    flex: 1;
+    overflow: hidden;
+}
+
+/* Left Column: Preview (Fixed) */
+.frame-preview-column {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    position: sticky;
+    top: 0;
+    height: fit-content;
+}
+
+/* Right Column: Frame Options (Scrollable) */
+.frame-options-column {
+    overflow-y: auto;
+    max-height: calc(90vh - 150px);
+    padding-right: 10px;
+}
+
+/* Custom scrollbar for frame options */
+.frame-options-column::-webkit-scrollbar {
+    width: 8px;
+}
+
+.frame-options-column::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.frame-options-column::-webkit-scrollbar-thumb {
+    background: #ff69b4;
+    border-radius: 10px;
+}
+
+.frame-options-column::-webkit-scrollbar-thumb:hover {
+    background: #ff1493;
+}
+
 /* Frame Preview Section */
 .frame-preview-section {
     background: white;
     border-radius: 16px;
     padding: 20px;
-    margin-bottom: 25px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
+.frame-preview-section h4 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ff1493;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
 .frame-preview-container {
-    min-height: 200px;
+    width: 100%;
+    height: calc(90vh - 250px); /* Fit với chiều cao modal */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -90,9 +145,16 @@
 }
 
 .frame-preview-container img {
-    max-width: 100%;
-    max-height: 400px;
-    object-fit: contain;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Giữ tỷ lệ và hiển thị đầy đủ */
+}
+
+/* Preview Action Buttons */
+.frame-preview-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
 }
 
 /* Frame Options Grid */
@@ -100,7 +162,6 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 15px;
-    margin-bottom: 25px;
 }
 
 /* Frame Option Button */
@@ -266,6 +327,20 @@
 }
 
 /* Responsive */
+@media (max-width: 1024px) {
+    .frame-selector-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .frame-preview-column {
+        position: relative;
+    }
+    
+    .frame-options-column {
+        max-height: 400px;
+    }
+}
+
 @media (max-width: 768px) {
     .frame-modal-content {
         padding: 20px;

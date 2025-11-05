@@ -5,11 +5,29 @@ import { initFilterButtons } from './filters.js';
 import { initLayoutButtons } from './layouts.js';
 import { deletePhoto, openSwapModal, closeSwapModal, downloadPhotos } from './ui.js';
 import { initCameraSelection, refreshCameraList } from './camera-selector.js';
-import { openFrameSelector, closeFrameSelector } from './frames.js';
+import { openFrameSelector, closeFrameSelector, loadExternalFrames, needsCacheRefresh } from './frames.js';
+import { loadDefaultFrames } from './default-frames.js';
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', async () => {
-    console.log('App.js: Initializing...');
+    console.log('🚀 App.js: Initializing...');
+    
+    // Load default frames first (if user doesn't have any)
+    console.log('🎨 Checking for default frames...');
+    const defaultLoaded = loadDefaultFrames();
+    if (defaultLoaded) {
+        console.log('✅ Default frames loaded from code');
+    }
+    
+    // Load external frames from cache/localStorage
+    console.log('📦 Loading external frames...');
+    const frameCount = loadExternalFrames();
+    console.log(`✅ Loaded ${frameCount} external frames`);
+    
+    // Check if cache needs refresh
+    if (needsCacheRefresh()) {
+        console.warn('⚠️ Frame cache is old (>24h). Consider refreshing via frame-manager.html');
+    }
     
     // Initialize modules
     initFilterButtons();

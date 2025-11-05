@@ -1,182 +1,364 @@
-# 📸 BinCun Photo - Photobooth Online# 📸 PhotoXinh - Photobooth Online# 📸 PhotoXinh - Photobooth Online
+# 📸 Photobooth Online# 📸 BinCun Photo - Photobooth Online# 📸 PhotoXinh - Photobooth Online# 📸 PhotoXinh - Photobooth Online
 
 
 
-Ứng dụng chụp ảnh photobooth trực tuyến với nhiều hiệu ứng và layout đẹp mắt.
+Ứng dụng chụp ảnh photobooth trực tuyến với nhiều hiệu ứng, layout và frames đẹp mắt.
 
 
 
-## 🗂️ Cấu trúc ProjectỨng dụng chụp ảnh photobooth trực tuyến với nhiều hiệu ứng và layout đẹp mắt.Ứng dụng chụp ảnh online với nhiều hiệu ứng và bộ lọc màu xinh xắn.
+## ✨ Tính năngỨng dụng chụp ảnh photobooth trực tuyến với nhiều hiệu ứng và layout đẹp mắt.
 
 
 
-```
+- 📷 **Chụp ảnh từ webcam** - Hỗ trợ chọn camera (bao gồm Phone Link)
 
-Photobooth/
+- 🎨 **6 bộ lọc màu** - Gốc, Đen Trắng, Sepia, Ấm Áp, Lạnh, Vintage
+
+- 📐 **3 layout** - 1×4 / 2×2 / 2×3## 🗂️ Cấu trúc ProjectỨng dụng chụp ảnh photobooth trực tuyến với nhiều hiệu ứng và layout đẹp mắt.Ứng dụng chụp ảnh online với nhiều hiệu ứng và bộ lọc màu xinh xắn.
+
+- 🖼️ **Frames đa dạng** - Import frames từ freehihi.com dễ dàng
+
+- ⏱️ **Đếm ngược** - 0s / 3s / 5s / 10s / 15s
+
+- 🔄 **Hoán đổi ảnh** - Kéo thả để đổi vị trí
+
+- 🗑️ **Xóa từng ảnh** - Chụp lại ảnh nào không đẹp```
+
+- ⚡ **Chụp tự động** - Tự động chụp 4 ảnh liên tiếp
+
+- 💾 **Tải về** - Download ảnh ghép với framePhotobooth/
+
+- 📱 **Responsive** - Hoạt động tốt trên mobile
 
 ├── index.html          # HTML chính (chỉ markup, không inline CSS/JS)## 🗂️ Cấu trúc Project## ✨ Tính năng
 
-├── css/                # Thư mục CSS modules
-
-│   ├── main.css       # Global styles, buttons, layouts
-
-│   ├── camera.css     # Camera, video, photo slots
-
-│   ├── filters.css    # Filter buttons & styles```- 📷 Chụp ảnh trực tiếp từ webcam
-
-│   ├── camera-selector.css  # Camera selector dropdown
-
-│   └── responsive.css # Mobile responsivePhotobooth/- 🎨 6 bộ lọc màu: Gốc, Đen Trắng, Sepia, Ấm Áp, Lạnh, Vintage
-
-├── js/                 # Thư mục JavaScript modules
-
-│   ├── app.js         # Entry point, initialize app├── index.html          # HTML chính (chỉ markup, không inline CSS/JS)- ⚡ Chế độ chụp đơn hoặc tự động chụp 4 ảnh liên tiếp
-
-│   ├── config.js      # Configuration & state management
-
-│   ├── camera.js      # Camera logic (start, stop, flip)├── css/                # Thư mục CSS modules- ⏱️ Đếm ngược: Không / 3s / 5s / 10s
-
-│   ├── camera-selector.js  # Camera device selector
-
-│   ├── capture.js     # Photo capture logic│   ├── main.css       # Global styles, buttons, layouts- 🖼️ Layout linh hoạt: 1×4 / 2×2 / 2×3
-
-│   ├── filters.js     # Filter management
-
-│   ├── layouts.js     # Layout switching (1x4, 2x2, 2x3)│   ├── camera.css     # Camera, video, photo slots- 🗑️ Xóa từng ảnh riêng lẻ
-
-│   └── ui.js          # UI updates (slots, download, swap)
-
-├── package.json        # NPM config│   ├── filters.css    # Filter buttons & styles- 💾 Tải về ảnh ghép (2×2 layout)
-
-└── README.md          # This file
-
-```│   └── responsive.css # Mobile responsive- 📱 Responsive trên mọi thiết bị
-
-
-
-## ✨ Tính năng├── js/                 # Thư mục JavaScript modules
-
-
-
-- 📷 Chụp ảnh từ webcam│   ├── app.js         # Entry point, initialize app## 🚀 Deploy lên Vercel
-
-- 📱 **Chọn camera từ dropdown** (hỗ trợ Phone Link để dùng camera điện thoại!)
-
-- 🎨 6 bộ lọc màu (Gốc, Đen Trắng, Sepia, Ấm, Lạnh, Vintage)│   ├── config.js      # Configuration & state management
-
-- 📐 3 layout khác nhau (1×4, 2×2, 2×3)
-
-- ⏱️ Đếm ngược tùy chỉnh (0s, 3s, 5s, 10s, 15s)│   ├── camera.js      # Camera logic (start, stop, flip)1. Fork/Clone repo này
-
-- 🔄 Hoán đổi vị trí ảnh
-
-- 🗑️ Xóa từng ảnh│   ├── capture.js     # Photo capture logic2. Đăng nhập [Vercel](https://vercel.com)
-
-- ⚡ Chụp tự động tất cả ảnh
-
-- 💾 Tải về ảnh ghép│   ├── filters.js     # Filter management3. Import project từ GitHub
-
-- 📱 Responsive mobile
-
-│   ├── layouts.js     # Layout switching (1x4, 2x2, 2x3)4. Deploy!
-
 ## 🚀 Chạy Project
 
-│   └── ui.js          # UI updates (slots, download, swap)
+├── css/                # Thư mục CSS modules
 
-### Cách 1: Python Server
+### Cách 1: Python Server (Đơn giản nhất)
 
-```bash├── package.json        # NPM config## 💻 Chạy local
+```bash│   ├── main.css       # Global styles, buttons, layouts
 
 python -m http.server 8000
 
-```└── README.md          # This file
+```│   ├── camera.css     # Camera, video, photo slots
 
 
 
-### Cách 2: Live Server (VS Code)``````bash
+### Cách 2: Live Server (VS Code)│   ├── filters.css    # Filter buttons & styles```- 📷 Chụp ảnh trực tiếp từ webcam
 
 Install extension "Live Server" và click "Go Live"
 
-python -m http.server 8000
+│   ├── camera-selector.css  # Camera selector dropdown
 
 ### Cách 3: Node.js
 
-```bash## ✨ Tính năng```
+```bash│   └── responsive.css # Mobile responsivePhotobooth/- 🎨 6 bộ lọc màu: Gốc, Đen Trắng, Sepia, Ấm Áp, Lạnh, Vintage
 
 npx http-server
+
+```├── js/                 # Thư mục JavaScript modules
+
+
+
+Mở trình duyệt: `http://localhost:8000`│   ├── app.js         # Entry point, initialize app├── index.html          # HTML chính (chỉ markup, không inline CSS/JS)- ⚡ Chế độ chụp đơn hoặc tự động chụp 4 ảnh liên tiếp
+
+
+
+## 🎨 Quản lý Frames│   ├── config.js      # Configuration & state management
+
+
+
+### Lấy Frames mới từ freehihi.com│   ├── camera.js      # Camera logic (start, stop, flip)├── css/                # Thư mục CSS modules- ⏱️ Đếm ngược: Không / 3s / 5s / 10s
+
+
+
+**Sử dụng Bookmarklet (Nhanh nhất - 1 click):**│   ├── camera-selector.js  # Camera device selector
+
+
+
+1. Mở `bookmarklet.html`│   ├── capture.js     # Photo capture logic│   ├── main.css       # Global styles, buttons, layouts- 🖼️ Layout linh hoạt: 1×4 / 2×2 / 2×3
+
+2. Nhấn `Ctrl+Shift+B` để hiện bookmark bar
+
+3. Kéo button "🎨 Extract Frames" lên bookmark bar│   ├── filters.js     # Filter management
+
+4. Truy cập https://photo.freehihi.com/viewframe
+
+5. Scroll xuống hết để load frames│   ├── layouts.js     # Layout switching (1x4, 2x2, 2x3)│   ├── camera.css     # Camera, video, photo slots- 🗑️ Xóa từng ảnh riêng lẻ
+
+6. Click bookmarklet → JSON tự động copy!
+
+7. Mở `frame-manager.html` → Paste → Import│   └── ui.js          # UI updates (slots, download, swap)
+
+
+
+📖 **Chi tiết:** Xem `BOOKMARKLET_GUIDE.md`├── package.json        # NPM config│   ├── filters.css    # Filter buttons & styles- 💾 Tải về ảnh ghép (2×2 layout)
+
+
+
+### Công cụ hỗ trợ└── README.md          # This file
+
+
+
+- **`bookmarklet.html`** - Extract frames từ freehihi.com (1 click)```│   └── responsive.css # Mobile responsive- 📱 Responsive trên mọi thiết bị
+
+- **`test-bookmarklet.html`** - Test bookmarklet trước khi dùng
+
+- **`frame-manager.html`** - Import frames từ JSON vào project
+
+- **`BOOKMARKLET_GUIDE.md`** - Hướng dẫn chi tiết bookmarklet
+
+- **`FRAME_GUIDE.md`** - Hướng dẫn về cấu trúc frames## ✨ Tính năng├── js/                 # Thư mục JavaScript modules
+
+
+
+## 🗂️ Cấu trúc Project
+
+
+
+```- 📷 Chụp ảnh từ webcam│   ├── app.js         # Entry point, initialize app## 🚀 Deploy lên Vercel
+
+Photobooth/
+
+├── index.html              # Trang chính- 📱 **Chọn camera từ dropdown** (hỗ trợ Phone Link để dùng camera điện thoại!)
+
+├── bookmarklet.html        # Tool extract frames
+
+├── test-bookmarklet.html   # Test bookmarklet- 🎨 6 bộ lọc màu (Gốc, Đen Trắng, Sepia, Ấm, Lạnh, Vintage)│   ├── config.js      # Configuration & state management
+
+├── frame-manager.html      # Import frames
+
+├── css/                    # Stylesheets- 📐 3 layout khác nhau (1×4, 2×2, 2×3)
+
+│   ├── main.css
+
+│   ├── camera.css- ⏱️ Đếm ngược tùy chỉnh (0s, 3s, 5s, 10s, 15s)│   ├── camera.js      # Camera logic (start, stop, flip)1. Fork/Clone repo này
+
+│   ├── filters.css
+
+│   ├── frames.css- 🔄 Hoán đổi vị trí ảnh
+
+│   ├── camera-selector.css
+
+│   └── responsive.css- 🗑️ Xóa từng ảnh│   ├── capture.js     # Photo capture logic2. Đăng nhập [Vercel](https://vercel.com)
+
+├── js/                     # JavaScript modules
+
+│   ├── app.js              # Entry point- ⚡ Chụp tự động tất cả ảnh
+
+│   ├── config.js           # Config & state
+
+│   ├── camera.js           # Camera logic- 💾 Tải về ảnh ghép│   ├── filters.js     # Filter management3. Import project từ GitHub
+
+│   ├── camera-selector.js  # Camera selector
+
+│   ├── capture.js          # Capture logic- 📱 Responsive mobile
+
+│   ├── filters.js          # Filter management
+
+│   ├── layouts.js          # Layout switching│   ├── layouts.js     # Layout switching (1x4, 2x2, 2x3)4. Deploy!
+
+│   ├── frames.js           # Frame management
+
+├── js/
+│   ├── app.js               # Entry point
+│   ├── camera.js            # Camera control
+│   ├── camera-selector.js   # Camera dropdown
+│   ├── capture.js           # Photo capture
+│   ├── config.js            # Global state
+│   ├── filters.js           # Color filters
+│   ├── frames.js            # Frame management
+│   ├── layouts.js           # Layout switching
+│   ├── default-frames.js    # Default frames data
+│   └── ui.js                # UI updates
+├── css/                     # Stylesheets
+├── bookmarklet.html         # Bookmarklet guide
+├── frame-manager.html       # Frame duplicate checker
+├── BOOKMARKLET_GUIDE.md     # Bookmarklet docs
+├── DEPLOY_GUIDE.md          # Deploy guide
+├── package.json
+└── README.md
+
+python -m http.server 8000
+
+## 🏗️ Kiến trúc Code
+
+```└── README.md          # This file
+
+### Module Pattern
+
+Code được tách thành các module nhỏ, mỗi module có trách nhiệm riêng:
+
+
+
+- **config.js** - Quản lý cấu hình & state toàn cục### Cách 2: Live Server (VS Code)``````bash
+
+- **camera.js** - Xử lý camera (getUserMedia, flip, stop)
+
+- **camera-selector.js** - Dropdown chọn cameraInstall extension "Live Server" và click "Go Live"
+
+- **capture.js** - Logic chụp ảnh
+
+- **filters.js** - Quản lý bộ lọc màupython -m http.server 8000
+
+- **layouts.js** - Chuyển đổi layout
+
+- **frames.js** - Quản lý frames### Cách 3: Node.js
+
+- **frame-loader.js** - Load frames từ CDN
+
+- **ui.js** - Cập nhật giao diện```bash## ✨ Tính năng```
+
+- **app.js** - Entry point, khởi tạo app
+
+npx http-server
+
+### ES6 Modules
+
+```javascript```
+
+// Export từ module
+
+export function startCamera() { ... }
+
+
+
+// Import vào module khácTruy cập: `http://localhost:8000`- 📷 Chụp ảnh từ webcamMở trình duyệt: `http://localhost:8000`
+
+import { startCamera } from './camera.js';
 
 ```
 
 
 
-Truy cập: `http://localhost:8000`- 📷 Chụp ảnh từ webcamMở trình duyệt: `http://localhost:8000`
-
-
-
-## 🏗️ Kiến trúc Code- 🎨 6 bộ lọc màu (Gốc, Đen Trắng, Sepia, Ấm, Lạnh, Vintage)
-
-
-
-### Module Pattern- 📐 3 layout khác nhau (1×4, 2×2, 2×3)## 🔒 Yêu cầu
-
-Code được tách thành các module nhỏ, mỗi module có trách nhiệm riêng:
-
-- ⏱️ Đếm ngược tùy chỉnh (0s, 3s, 5s, 10s, 15s)
-
-- **config.js**: Quản lý cấu hình & state toàn cục
-
-- **camera.js**: Xử lý camera (getUserMedia, flip, stop)- 🔄 Hoán đổi vị trí ảnh- Trình duyệt hỗ trợ WebRTC (Chrome, Firefox, Safari, Edge)
-
-- **camera-selector.js**: Dropdown chọn camera (phát hiện Phone Link tự động)
-
-- **capture.js**: Logic chụp ảnh (countdown, capture, auto-capture)- 🗑️ Xóa từng ảnh- Cho phép truy cập camera
-
-- **filters.js**: Quản lý bộ lọc màu
-
-- **layouts.js**: Chuyển đổi layout & countdown timer- ⚡ Chụp tự động tất cả ảnh- HTTPS (bắt buộc khi deploy)
-
-- **ui.js**: Cập nhật giao diện (slots, download, swap photos)
-
-- **app.js**: Entry point, khởi tạo app- 💾 Tải về ảnh ghép
-
-
-
-### ES6 Modules- 📱 Responsive mobile---
-
-Sử dụng ES6 import/export để chia code thành modules:
+### State Management## 🏗️ Kiến trúc Code- 🎨 6 bộ lọc màu (Gốc, Đen Trắng, Sepia, Ấm, Lạnh, Vintage)
 
 ```javascript
 
-// Export từ module
-
-export function startCamera() { ... }## 🚀 Chạy ProjectMade with 💖 by PhotoXinh Team
-
-
-
-// Import vào module khác
-
-import { startCamera } from './camera.js';### Cách 1: Python Server
-
-``````bash
-
-python -m http.server 8000
-
-### State Management```
-
-Tất cả state được quản lý tập trung trong `config.js`:
-
-```javascript### Cách 2: Live Server (VS Code)
-
-const STATE = {Install extension "Live Server" và click "Go Live"
+const STATE = {
 
     stream: null,
 
-    photos: [...],### Cách 3: Node.js
+    photos: [],### Module Pattern- 📐 3 layout khác nhau (1×4, 2×2, 2×3)## 🔒 Yêu cầu
 
-    currentFilter: 'none',```bash
+    currentFilter: 'none',
 
-    selectedDeviceId: null,  // Camera được chọnnpx http-server
+    currentFrame: 'none',Code được tách thành các module nhỏ, mỗi module có trách nhiệm riêng:
+
+    selectedDeviceId: null,
+
+    // ...- ⏱️ Đếm ngược tùy chỉnh (0s, 3s, 5s, 10s, 15s)
+
+};
+
+```- **config.js**: Quản lý cấu hình & state toàn cục
+
+
+
+## 🎯 Lợi ích của kiến trúc- **camera.js**: Xử lý camera (getUserMedia, flip, stop)- 🔄 Hoán đổi vị trí ảnh- Trình duyệt hỗ trợ WebRTC (Chrome, Firefox, Safari, Edge)
+
+
+
+✅ **Dễ maintain** - Mỗi file 50-150 dòng thay vì 900+ dòng  - **camera-selector.js**: Dropdown chọn camera (phát hiện Phone Link tự động)
+
+✅ **Dễ mở rộng** - Thêm feature mới không ảnh hưởng code cũ  
+
+✅ **Tái sử dụng** - Function có thể dùng ở nhiều nơi  - **capture.js**: Logic chụp ảnh (countdown, capture, auto-capture)- 🗑️ Xóa từng ảnh- Cho phép truy cập camera
+
+✅ **Team work** - Nhiều người làm việc song song  
+
+✅ **Testing** - Dễ viết unit test cho từng module  - **filters.js**: Quản lý bộ lọc màu
+
+
+
+## 📝 Convention- **layouts.js**: Chuyển đổi layout & countdown timer- ⚡ Chụp tự động tất cả ảnh- HTTPS (bắt buộc khi deploy)
+
+
+
+- File CSS: `kebab-case.css`- **ui.js**: Cập nhật giao diện (slots, download, swap photos)
+
+- File JS: `kebab-case.js`
+
+- Function: `camelCase()`- **app.js**: Entry point, khởi tạo app- 💾 Tải về ảnh ghép
+
+- Constant: `UPPER_CASE`
+
+- Class: `PascalCase`
+
+
+
+## 📦 Dependencies### ES6 Modules- 📱 Responsive mobile---
+
+
+
+- TailwindCSS 2.2.19 (CDN)Sử dụng ES6 import/export để chia code thành modules:
+
+- Font Awesome 6.5.0 (CDN)
+
+```javascript
+
+## 🔒 Yêu cầu
+
+// Export từ module
+
+- Trình duyệt hỗ trợ WebRTC (Chrome, Firefox, Safari, Edge)
+
+- Cho phép truy cập cameraexport function startCamera() { ... }## 🚀 Chạy ProjectMade with 💖 by PhotoXinh Team
+
+- HTTPS (bắt buộc khi deploy)
+
+
+
+## 🚀 Deploy lên Vercel
+
+// Import vào module khác
+
+1. Fork/Clone repo này
+
+2. Đăng nhập [Vercel](https://vercel.com)import { startCamera } from './camera.js';### Cách 1: Python Server
+
+3. Import project từ GitHub
+
+4. Deploy!``````bash
+
+
+
+## 🔮 Roadmappython -m http.server 8000
+
+
+
+- [x] Camera selector với Phone Link support### State Management```
+
+- [x] Frame system với bookmarklet
+
+- [ ] Video recordingTất cả state được quản lý tập trung trong `config.js`:
+
+- [ ] Share social media
+
+- [ ] PWA support```javascript### Cách 2: Live Server (VS Code)
+
+- [ ] Backend upload
+
+const STATE = {Install extension "Live Server" và click "Go Live"
+
+## 📚 Documentation
+
+    stream: null,
+
+- **FRAME_GUIDE.md** - Hướng dẫn sử dụng và cấu trúc frames
+
+- **BOOKMARKLET_GUIDE.md** - Hướng dẫn chi tiết về bookmarklet tool    photos: [...],### Cách 3: Node.js
+
+
+
+---    currentFilter: 'none',```bash
+
+
+
+Made with 💖 by Photobooth Team    selectedDeviceId: null,  // Camera được chọnnpx http-server
+
 
     // ...```
 

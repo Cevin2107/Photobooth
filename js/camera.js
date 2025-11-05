@@ -9,6 +9,8 @@ const ctx = canvas.getContext('2d');
 // Start camera (with optional device ID)
 export async function startCamera(deviceId = null) {
     try {
+        console.log('📹 Starting camera...', deviceId ? `Device: ${deviceId}` : 'Default device');
+        
         // If called from button click without deviceId, get it from dropdown
         if (!deviceId) {
             const select = document.getElementById('cameraSelect');
@@ -24,12 +26,17 @@ export async function startCamera(deviceId = null) {
             ? { video: { deviceId: { exact: deviceId }, width: { ideal: 1280 }, height: { ideal: 960 } } }
             : { video: { width: { ideal: 1280 }, height: { ideal: 960 } } };
         
+        console.log('🎥 Requesting camera stream with constraints:', constraints);
+        
         STATE.stream = await navigator.mediaDevices.getUserMedia(constraints);
         video.srcObject = STATE.stream;
+        
+        console.log('✅ Camera stream obtained successfully');
         
         video.addEventListener('loadedmetadata', () => {
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
+            console.log(`📐 Video dimensions: ${video.videoWidth}x${video.videoHeight}`);
         });
         
         // Save selected device
@@ -45,7 +52,8 @@ export async function startCamera(deviceId = null) {
         
         return true;
     } catch (err) {
-        alert('Không thể truy cập camera! Vui lòng cấp quyền.');
+        console.error('❌ Camera error:', err);
+        alert(`Không thể truy cập camera!\n\nLỗi: ${err.name} - ${err.message}\n\nVui lòng:\n1. Cho phép truy cập camera\n2. Đóng app khác đang dùng camera\n3. Thử lại`);
         return false;
     }
 }

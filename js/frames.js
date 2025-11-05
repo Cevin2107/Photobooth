@@ -1,45 +1,113 @@
 // Frames Module
 import { STATE } from './config.js';
 
+/**
+ * ============================================================================
+ * 📐 FRAME POSITIONS CONFIGURATION
+ * ============================================================================
+ * 
+ * Để thêm/update positions cho frames:
+ * 
+ * 1. Mở frame-position-detector.html
+ * 2. Click "Start Auto-Detection"
+ * 3. Chọn frames cần detect (checkbox)
+ * 4. Click "Generate JSON for Selected"
+ * 5. Copy JSON result
+ * 6. Paste vào object FRAME_POSITIONS bên dưới
+ * 
+ * Format JSON:
+ * {
+ *   "frame-url": {
+ *     "photoSize": { "width": 771, "height": 565 },
+ *     "positions": [
+ *       { "x": 0, "y": 64, "centerX": true },
+ *       { "x": 0, "y": 676, "centerX": true },
+ *       { "x": 0, "y": 1288, "centerX": true },
+ *       { "x": 0, "y": 1900, "centerX": true }
+ *     ]
+ *   }
+ * }
+ * 
+ * NOTE: Tool sẽ tự động detect positions cho frames mới. Chỉ cần paste vào đây!
+ * ============================================================================
+ */
+
+const FRAME_POSITIONS = {
+    // Paste detected positions here
+    // Example:
+    // "https://cdn.freehihi.com/frames/abc.png": {
+    //     "photoSize": { "width": 771, "height": 565 },
+    //     "positions": [...]
+    // }
+};
+
 // Frame configurations
 export const FRAMES = {
     none: {
         name: 'Không khung',
         image: null,
         layout: 'all'
-    },
-    frame1: {
-        name: 'Khung Classic',
-        image: 'frames/68df42a174a8d.png',
-        layout: '1x4',
-        photoSize: {
-            width: 771,
-            height: 565
-        },
-        positions: [
-            { x: 0, y: 64, centerX: true },      // Ảnh 1: cách top 64px
-            { x: 0, y: 676, centerX: true },     // Ảnh 2: 64 + 565 + 47 = 676
-            { x: 0, y: 1288, centerX: true },    // Ảnh 3: 676 + 565 + 47 = 1288
-            { x: 0, y: 1900, centerX: true }     // Ảnh 4: 1288 + 565 + 47 = 1900
-        ]
-    },
-    frame2: {
-        name: 'Khung Style 2',
-        image: 'frames/68df41df4934f.png',
-        layout: '1x4',
-        photoSize: {
-            width: 771,
-            height: 565
-        },
-        positions: [
-            { x: 0, y: 64, centerX: true },      // Ảnh 1
-            { x: 0, y: 676, centerX: true },     // Ảnh 2
-            { x: 0, y: 1288, centerX: true },    // Ảnh 3
-            { x: 0, y: 1900, centerX: true }     // Ảnh 4
-        ]
     }
-    // Có thể thêm nhiều frame khác ở đây
 };
+
+// Load external frames from localStorage cache
+export function loadExternalFrames() {
+    try {
+        const cached = localStorage.getItem('photobooth_external_frames');
+        if (cached) {
+            const externalFrames = JSON.parse(cached);
+            console.log(`✅ Loading ${externalFrames.length} external frames from cache`);
+            
+            // Merge external frames into FRAMES object with proper format
+            externalFrames.forEach((frame, index) => {
+                const frameKey = `external_${index}`;
+                
+                // Get positions from FRAME_POSITIONS config or use defaults
+                const positionConfig = FRAME_POSITIONS[frame.url] || {
+                    photoSize: { width: 771, height: 565 },
+                    positions: [
+                        { x: 0, y: 64, centerX: true },
+                        { x: 0, y: 676, centerX: true },
+                        { x: 0, y: 1288, centerX: true },
+                        { x: 0, y: 1900, centerX: true }
+                    ]
+                };
+                
+                FRAMES[frameKey] = {
+                    name: frame.name || `Frame ${index + 1}`,
+                    image: frame.url,
+                    layout: '1x4', // Default to 1x4 for freehihi frames
+                    photoSize: positionConfig.photoSize,
+                    positions: positionConfig.positions,
+                    isExternal: true // Mark as external frame
+                };
+            });
+            
+            console.log(`✅ Loaded ${externalFrames.length} external frames (total frames: ${Object.keys(FRAMES).length})`);
+            return externalFrames.length;
+        } else {
+            console.warn('⚠️ No external frames in cache. Use frame-manager.html to import.');
+        }
+    } catch (error) {
+        console.error('❌ Error loading external frames:', error);
+    }
+    return 0;
+}
+
+// Check if cache needs refresh (older than 24 hours)
+export function needsCacheRefresh() {
+    try {
+        const timestamp = localStorage.getItem('photobooth_external_frames_timestamp');
+        if (!timestamp) return true;
+        
+        const age = Date.now() - parseInt(timestamp);
+        const oneDay = 24 * 60 * 60 * 1000; // 24 hours
+        
+        return age > oneDay;
+    } catch (error) {
+        return true;
+    }
+}
 
 // Get frames for current layout
 export function getFramesForLayout(layout) {
@@ -185,8 +253,9 @@ export async function applyFrameAndDownload(photos, layout, cellWidth, cellHeigh
         return createSimpleGrid(photos, layout, cellWidth, cellHeight);
     }
     
-    // Load frame image
+    // Load frame image with CORS support
     const frameImg = new Image();
+    frameImg.crossOrigin = "anonymous"; // Fix CORS issue for external images
     try {
         await new Promise((resolve, reject) => {
             frameImg.onload = resolve;

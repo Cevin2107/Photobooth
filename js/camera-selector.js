@@ -5,6 +5,8 @@ import { startCamera, stopCamera } from './camera.js';
 // Get available cameras
 export async function getCameraDevices() {
     try {
+        console.log('🔍 Requesting camera permission...');
+        
         // Request permission for integrated camera first (no specific facing mode)
         // This will trigger permission dialog but won't auto-connect to phone cameras
         const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -14,15 +16,20 @@ export async function getCameraDevices() {
             } 
         });
         
+        console.log('✅ Camera permission granted');
+        
         // Stop the stream immediately - we just needed permission
         stream.getTracks().forEach(track => track.stop());
         
         const devices = await navigator.mediaDevices.enumerateDevices();
         const videoDevices = devices.filter(device => device.kind === 'videoinput');
         
+        console.log(`📷 Found ${videoDevices.length} camera(s):`, videoDevices.map(d => d.label));
+        
         return videoDevices;
     } catch (err) {
-        console.error('Error getting camera devices:', err);
+        console.error('❌ Error getting camera devices:', err);
+        alert(`Không thể truy cập camera!\n\nLỗi: ${err.message}\n\nVui lòng:\n1. Cho phép truy cập camera\n2. Đóng các app khác đang dùng camera (Teams, Zoom)\n3. Reload trang (F5)`);
         return [];
     }
 }

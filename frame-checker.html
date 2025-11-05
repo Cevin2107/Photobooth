@@ -4,147 +4,379 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🔍 Frame Duplicate Checker</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 2rem;
+            padding: 30px;
         }
+        
         .container {
             max-width: 1200px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
-            padding: 2rem;
+            padding: 40px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-        .section {
-            margin-bottom: 2rem;
-            padding: 1.5rem;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
         }
-        .btn {
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            border: none;
+        
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1rem;
         }
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            padding: 25px;
+            border-radius: 16px;
+            transition: transform 0.3s;
         }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
         }
-        .frame-item {
-            padding: 0.75rem;
-            border-radius: 8px;
-            margin-bottom: 0.5rem;
+        
+        .stat-card h3 {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card .value {
+            font-size: 36px;
+            font-weight: 700;
+        }
+        
+        .section {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 10px;
         }
-        .frame-item.duplicate {
-            background: #fee;
-            border: 2px solid #f00;
-        }
-        .frame-item.new {
-            background: #efe;
-            border: 2px solid #0a0;
-        }
-        .frame-item.existing {
-            background: #eef;
-            border: 2px solid #00a;
-        }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        .stat-box {
-            padding: 1rem;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .stat-box.total { background: #e0e7ff; }
-        .stat-box.existing { background: #dbeafe; }
-        .stat-box.new { background: #dcfce7; }
-        .stat-box.duplicate { background: #fee2e2; }
+        
         textarea {
             width: 100%;
-            height: 200px;
-            padding: 1rem;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-family: monospace;
-            font-size: 0.875rem;
+            min-height: 200px;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            resize: vertical;
         }
-        .frame-preview {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
+        
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            color: white;
+            margin-right: 10px;
+            transition: transform 0.2s;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, #f6ad55 0%, #ed8936 100%);
+        }
+        
+        .collapsible {
+            background: #667eea;
+            color: white;
+            padding: 15px 20px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            transition: background 0.3s;
+        }
+        
+        .collapsible:hover {
+            background: #5568d3;
+        }
+        
+        .collapsible i {
+            transition: transform 0.3s;
+        }
+        
+        .collapsible.active i {
+            transform: rotate(180deg);
+        }
+        
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+        
+        .collapsible-content.open {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .frames-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .frame-item {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 10px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .frame-item:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+        }
+        
+        .frame-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .frame-item .name {
+            font-size: 12px;
+            margin-top: 8px;
+            color: #666;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .frame-item .layout-badge {
+            display: inline-block;
+            background: #e0e7ff;
+            color: #5b21b6;
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+        
+        .duplicate-badge {
+            background: #fbbf24;
+            color: #78350f;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        
+        .new-badge {
+            background: #10b981;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 5px;
+            display: inline-block;
+        }
+        
+        .result-box {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+        
+        .result-box::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        .result-box::-webkit-scrollbar-track {
+            background: #2d2d2d;
+        }
+        
+        .result-box::-webkit-scrollbar-thumb {
+            background: #555;
             border-radius: 5px;
+        }
+        
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 2px solid #10b981;
+        }
+        
+        .alert-warning {
+            background: #fef3c7;
+            color: #92400e;
+            border: 2px solid #fbbf24;
+        }
+        
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.3;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1 class="text-4xl font-bold text-center mb-6 text-purple-600">
-            <i class="fas fa-search"></i> Frame Duplicate Checker
-        </h1>
-        <p class="text-center text-gray-600 mb-8">
-            Check frames trùng lặp với code hiện tại trên production/local
-        </p>
+        <h1><i class="fas fa-search"></i> Frame Checker</h1>
+        <p class="subtitle">Check frames trùng lặp với code hiện tại</p>
 
-        <!-- Current Frames Info -->
+        <div class="stats-grid" id="mainStats"></div>
+
+        <!-- Current Frames (Collapsible) -->
         <div class="section">
-            <h2 class="text-2xl font-bold mb-4 text-blue-600">
-                <i class="fas fa-database"></i> Frames hiện tại trong code
-            </h2>
-            <button onclick="loadCurrentFrames()" class="btn btn-primary">
-                <i class="fas fa-sync"></i> Load frames từ code
+            <h2><i class="fas fa-database"></i> Frames hiện tại trong code</h2>
+            <button class="collapsible" onclick="toggleCollapsible(this)">
+                <span><i class="fas fa-eye"></i> Xem chi tiết frames hiện có</span>
+                <i class="fas fa-chevron-down"></i>
             </button>
-            <div id="currentStats" class="stats"></div>
-            <div id="currentFramesList" class="mt-4"></div>
+            <div class="collapsible-content">
+                <div id="currentFramesPreview" class="frames-preview"></div>
+            </div>
         </div>
 
         <!-- New Frames Input -->
         <div class="section">
-            <h2 class="text-2xl font-bold mb-4 text-green-600">
-                <i class="fas fa-plus-circle"></i> Paste frames mới (JSON Array)
-            </h2>
+            <h2><i class="fas fa-plus-circle"></i> Paste frames mới (JSON Array)</h2>
             <textarea id="newFramesInput" placeholder='Paste JSON array here, ví dụ:
 [
-  { "name": "Frame 1", "url": "https://cdn.freehihi.com/abc.png", "layout": "2x2" },
-  { "name": "Frame 2", "url": "https://cdn.freehihi.com/def.png", "layout": "1x4" }
+  {
+    "name": "Frame 1",
+    "url": "https://cdn.freehihi.com/abc.png",
+    "layout": "2x2"
+  },
+  {
+    "name": "Frame 2", 
+    "url": "https://cdn.freehihi.com/def.png",
+    "layout": "1x4"
+  }
 ]'></textarea>
-            <button onclick="checkDuplicates()" class="btn btn-primary mt-4">
+            <button onclick="checkDuplicates()" class="btn-primary" style="margin-top: 15px;">
                 <i class="fas fa-check-double"></i> Check Duplicates
             </button>
         </div>
 
         <!-- Results -->
         <div id="resultsSection" class="section" style="display: none;">
-            <h2 class="text-2xl font-bold mb-4 text-purple-600">
-                <i class="fas fa-chart-bar"></i> Kết quả kiểm tra
-            </h2>
-            <div id="resultStats" class="stats"></div>
-            <div id="resultsList" class="mt-4"></div>
+            <h2><i class="fas fa-chart-bar"></i> Kết quả kiểm tra</h2>
             
-            <div class="mt-6 flex gap-4">
-                <button onclick="copyNewFrames()" class="btn btn-primary">
+            <div id="resultAlert"></div>
+            
+            <!-- JSON Code Box (Top) -->
+            <div id="jsonCodeBox" class="result-box" style="display: none;"></div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button onclick="copyNewFrames()" class="btn-success">
                     <i class="fas fa-copy"></i> Copy frames mới (không trùng)
                 </button>
-                <button onclick="copyAllMerged()" class="btn btn-primary">
+                <button onclick="copyAllMerged()" class="btn-primary">
                     <i class="fas fa-layer-group"></i> Copy tất cả (merged)
                 </button>
+            </div>
+            
+            <!-- New Frames Preview -->
+            <div id="newFramesPreview"></div>
+            
+            <!-- Duplicate Frames (Collapsible) -->
+            <div id="duplicatesCollapsibleSection" style="display: none; margin-top: 30px;">
+                <button class="collapsible" onclick="toggleCollapsible(this)">
+                    <span><i class="fas fa-exclamation-triangle"></i> Frames trùng lặp (<span id="duplicateCount">0</span>)</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+                <div class="collapsible-content">
+                    <div id="duplicatesPreview" class="frames-preview"></div>
+                </div>
             </div>
         </div>
     </div>
@@ -157,46 +389,68 @@
         let duplicates = [];
         let uniqueNewFrames = [];
 
-        window.loadCurrentFrames = function() {
+        // Auto load on page load
+        window.addEventListener('load', () => {
+            loadCurrentFrames();
+        });
+
+        function loadCurrentFrames() {
             currentFrames = DEFAULT_FRAMES_JSON;
             
-            const statsHtml = `
-                <div class="stat-box total">
-                    <div class="text-3xl font-bold text-purple-600">${currentFrames.length}</div>
-                    <div class="text-sm text-gray-600">Total Frames</div>
+            // Update main stats - hiện tại frames chưa có field layout
+            // Nên chỉ hiển thị tổng số
+            const layout1x4 = currentFrames.filter(f => f.layout === '1x4').length;
+            const layout2x2 = currentFrames.filter(f => f.layout === '2x2').length;
+            const layout2x3 = currentFrames.filter(f => f.layout === '2x3').length;
+            const noLayout = currentFrames.filter(f => !f.layout).length;
+            
+            document.getElementById('mainStats').innerHTML = `
+                <div class="stat-card">
+                    <h3>Tổng Frames</h3>
+                    <div class="value">${currentFrames.length}</div>
                 </div>
-                <div class="stat-box existing">
-                    <div class="text-3xl font-bold text-blue-600">${currentFrames.filter(f => f.layout === '1x4').length}</div>
-                    <div class="text-sm text-gray-600">Layout 1×4</div>
+                <div class="stat-card">
+                    <h3>Layout 1×4</h3>
+                    <div class="value">${layout1x4}</div>
                 </div>
-                <div class="stat-box existing">
-                    <div class="text-3xl font-bold text-pink-600">${currentFrames.filter(f => f.layout === '2x2').length}</div>
-                    <div class="text-sm text-gray-600">Layout 2×2</div>
+                <div class="stat-card">
+                    <h3>Layout 2×2</h3>
+                    <div class="value">${layout2x2}</div>
                 </div>
-                <div class="stat-box existing">
-                    <div class="text-3xl font-bold text-green-600">${currentFrames.filter(f => f.layout === '2x3').length}</div>
-                    <div class="text-sm text-gray-600">Layout 2×3</div>
+                <div class="stat-card">
+                    <h3>Layout 2×3</h3>
+                    <div class="value">${layout2x3}</div>
                 </div>
             `;
             
-            document.getElementById('currentStats').innerHTML = statsHtml;
-            
-            const listHtml = currentFrames.slice(0, 10).map(frame => `
-                <div class="frame-item existing">
-                    <img src="${frame.url}" class="frame-preview" alt="${frame.name}">
-                    <div class="flex-1">
-                        <div class="font-bold">${frame.name}</div>
-                        <div class="text-sm text-gray-600">${frame.layout || 'unknown'}</div>
+            // Show all frames in collapsible
+            if (currentFrames.length === 0) {
+                document.getElementById('currentFramesPreview').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <p>Không có frames nào</p>
                     </div>
+                `;
+                return;
+            }
+            
+            const framesHtml = currentFrames.map(frame => `
+                <div class="frame-item">
+                    <img src="${frame.url}" alt="${frame.name}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27150%27 height=%27200%27%3E%3Crect fill=%27%23f8f9fa%27 width=%27150%27 height=%27200%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 fill=%27%23999%27%3E?%3C/text%3E%3C/svg%3E'">
+                    <div class="name" title="${frame.name}">${frame.name}</div>
+                    <span class="layout-badge">${frame.layout || 'N/A'}</span>
                 </div>
             `).join('');
             
-            document.getElementById('currentFramesList').innerHTML = `
-                <div class="text-sm text-gray-600 mb-2">Showing first 10 frames...</div>
-                ${listHtml}
-            `;
+            document.getElementById('currentFramesPreview').innerHTML = framesHtml;
             
             console.log('✅ Loaded', currentFrames.length, 'frames from code');
+        }
+
+        window.toggleCollapsible = function(btn) {
+            btn.classList.toggle('active');
+            const content = btn.nextElementSibling;
+            content.classList.toggle('open');
         };
 
         window.checkDuplicates = function() {
@@ -212,6 +466,10 @@
                 
                 if (!Array.isArray(newFrames)) {
                     throw new Error('JSON phải là array!');
+                }
+                
+                if (newFrames.length === 0) {
+                    throw new Error('Array rỗng!');
                 }
                 
                 // Check duplicates
@@ -240,61 +498,60 @@
             const section = document.getElementById('resultsSection');
             section.style.display = 'block';
             
-            const statsHtml = `
-                <div class="stat-box total">
-                    <div class="text-3xl font-bold text-purple-600">${newFrames.length}</div>
-                    <div class="text-sm text-gray-600">Frames input</div>
-                </div>
-                <div class="stat-box new">
-                    <div class="text-3xl font-bold text-green-600">${uniqueNewFrames.length}</div>
-                    <div class="text-sm text-gray-600">Frames mới (OK)</div>
-                </div>
-                <div class="stat-box duplicate">
-                    <div class="text-3xl font-bold text-red-600">${duplicates.length}</div>
-                    <div class="text-sm text-gray-600">Trùng lặp</div>
-                </div>
-                <div class="stat-box existing">
-                    <div class="text-3xl font-bold text-blue-600">${currentFrames.length + uniqueNewFrames.length}</div>
-                    <div class="text-sm text-gray-600">Total sau khi merge</div>
-                </div>
-            `;
+            // Show alert
+            let alertHtml = '';
+            if (uniqueNewFrames.length > 0) {
+                alertHtml = `<div class="alert alert-success">✅ Có ${uniqueNewFrames.length} frames mới! Click nút copy để lấy JSON.</div>`;
+            } else {
+                alertHtml = `<div class="alert alert-warning">⚠️ Không có frames mới. Tất cả đã tồn tại trong code!</div>`;
+            }
+            document.getElementById('resultAlert').innerHTML = alertHtml;
             
-            document.getElementById('resultStats').innerHTML = statsHtml;
-            
-            let listHtml = '';
+            // Show new frames preview
+            let newPreviewHtml = '';
             
             if (uniqueNewFrames.length > 0) {
-                listHtml += '<h3 class="text-lg font-bold text-green-600 mb-2"><i class="fas fa-check-circle"></i> Frames mới (không trùng)</h3>';
-                listHtml += uniqueNewFrames.map(frame => `
-                    <div class="frame-item new">
-                        <img src="${frame.url}" class="frame-preview" alt="${frame.name}">
-                        <div class="flex-1">
-                            <div class="font-bold">${frame.name}</div>
-                            <div class="text-sm text-gray-600">${frame.layout || 'unknown'}</div>
+                newPreviewHtml += '<h3 style="color: #10b981; margin: 20px 0 15px;"><i class="fas fa-check-circle"></i> Frames mới (không trùng)</h3>';
+                newPreviewHtml += '<div class="frames-preview">';
+                uniqueNewFrames.forEach(frame => {
+                    newPreviewHtml += `
+                        <div class="frame-item">
+                            <img src="${frame.url}" alt="${frame.name}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27150%27 height=%27200%27%3E%3Crect fill=%27%23dcfce7%27 width=%27150%27 height=%27200%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 fill=%27%2310b981%27 font-size=%2724%27%3E✓%3C/text%3E%3C/svg%3E'">
+                            <div class="name" title="${frame.name}">${frame.name}</div>
+                            <span class="layout-badge">${frame.layout || 'N/A'}</span>
+                            <span class="new-badge">✓ MỚI</span>
                         </div>
-                        <div class="text-green-600 font-bold">✓ NEW</div>
-                    </div>
-                `).join('');
+                    `;
+                });
+                newPreviewHtml += '</div>';
             }
             
+            document.getElementById('newFramesPreview').innerHTML = newPreviewHtml;
+            
+            // Show duplicates in collapsible
             if (duplicates.length > 0) {
-                listHtml += '<h3 class="text-lg font-bold text-red-600 mb-2 mt-4"><i class="fas fa-exclamation-triangle"></i> Frames trùng lặp</h3>';
-                listHtml += duplicates.map(frame => `
-                    <div class="frame-item duplicate">
-                        <img src="${frame.url}" class="frame-preview" alt="${frame.name}">
-                        <div class="flex-1">
-                            <div class="font-bold">${frame.name}</div>
-                            <div class="text-sm text-gray-600">${frame.layout || 'unknown'}</div>
+                document.getElementById('duplicatesCollapsibleSection').style.display = 'block';
+                document.getElementById('duplicateCount').textContent = duplicates.length;
+                
+                let dupPreviewHtml = '';
+                duplicates.forEach(frame => {
+                    dupPreviewHtml += `
+                        <div class="frame-item">
+                            <img src="${frame.url}" alt="${frame.name}" loading="lazy" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27150%27 height=%27200%27%3E%3Crect fill=%27%23fef3c7%27 width=%27150%27 height=%27200%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 dominant-baseline=%27middle%27 text-anchor=%27middle%27 fill=%27%23f59e0b%27 font-size=%2724%27%3E⚠%3C/text%3E%3C/svg%3E'">
+                            <div class="name" title="${frame.name}">${frame.name}</div>
+                            <span class="layout-badge">${frame.layout || 'N/A'}</span>
+                            <span class="duplicate-badge">TRÙNG</span>
                         </div>
-                        <div class="text-red-600 font-bold">✗ DUPLICATE</div>
-                    </div>
-                `).join('');
+                    `;
+                });
+                
+                document.getElementById('duplicatesPreview').innerHTML = dupPreviewHtml;
+            } else {
+                document.getElementById('duplicatesCollapsibleSection').style.display = 'none';
             }
-            
-            document.getElementById('resultsList').innerHTML = listHtml;
             
             // Scroll to results
-            section.scrollIntoView({ behavior: 'smooth' });
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         window.copyNewFrames = function() {
@@ -304,23 +561,34 @@
             }
             
             const json = JSON.stringify(uniqueNewFrames, null, 2);
+            
+            // Show JSON code
+            document.getElementById('jsonCodeBox').textContent = json;
+            document.getElementById('jsonCodeBox').style.display = 'block';
+            
+            // Copy to clipboard
             navigator.clipboard.writeText(json).then(() => {
                 alert(`✅ Đã copy ${uniqueNewFrames.length} frames mới!\n\nPaste vào js/default-frames.js`);
+            }).catch(err => {
+                alert('❌ Copy thất bại! Vui lòng copy thủ công từ code box bên dưới.');
             });
         };
 
         window.copyAllMerged = function() {
             const merged = [...currentFrames, ...uniqueNewFrames];
             const json = JSON.stringify(merged, null, 2);
+            
+            // Show JSON code
+            document.getElementById('jsonCodeBox').textContent = json;
+            document.getElementById('jsonCodeBox').style.display = 'block';
+            
+            // Copy to clipboard
             navigator.clipboard.writeText(json).then(() => {
                 alert(`✅ Đã copy ${merged.length} frames (merged)!\n\nPaste vào js/default-frames.js`);
+            }).catch(err => {
+                alert('❌ Copy thất bại! Vui lòng copy thủ công từ code box bên dưới.');
             });
         };
-
-        // Auto load on page load
-        window.addEventListener('load', () => {
-            loadCurrentFrames();
-        });
     </script>
 </body>
 </html>

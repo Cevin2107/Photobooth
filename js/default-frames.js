@@ -593,6 +593,83 @@ export const DEFAULT_FRAMES_JSON = [
   "url": "https://cdn.freehihi.com/68d98e7b4884e.png",
   "index": 15
 },
+
+// 2x3 frames
+  {
+    "name": "Powerpuff (gốc)",
+    "url": "https://cdn.freehihi.com/68529d1e59ef8.png",
+    "index": 0
+  },
+  {
+    "name": "Basic-5 (gốc)",
+    "url": "https://cdn.freehihi.com/68df47965d96e.png",
+    "index": 1
+  },
+  {
+    "name": "Basic-2 (gốc)",
+    "url": "https://cdn.freehihi.com/68df474dba196.png",
+    "index": 2
+  },
+  {
+    "name": "Basic-3 (gốc)",
+    "url": "https://cdn.freehihi.com/68df4764cfc2b.png",
+    "index": 3
+  },
+  {
+    "name": "Basic-6 (gốc)",
+    "url": "https://cdn.freehihi.com/68df47ae9c158.png",
+    "index": 4
+  },
+  {
+    "name": "2025 (gốc)",
+    "url": "https://cdn.freehihi.com/68529cabea5c5.png",
+    "index": 5
+  },
+  {
+    "name": "Netflix (gốc)",
+    "url": "https://cdn.freehihi.com/68529e3629737.png",
+    "index": 6
+  },
+  {
+    "name": "shinosuke (gốc)",
+    "url": "https://cdn.freehihi.com/68529d27481d8.png",
+    "index": 7
+  },
+  {
+    "name": "Lucky (gốc)",
+    "url": "https://cdn.freehihi.com/68529c87567eb.png",
+    "index": 8
+  },
+  {
+    "name": "Y2K (gốc)",
+    "url": "https://cdn.freehihi.com/68529db67f80e.png",
+    "index": 9
+  },
+  {
+    "name": "Basic-4 (gốc)",
+    "url": "https://cdn.freehihi.com/68df477dd5360.png",
+    "index": 10
+  },
+  {
+    "name": "Jeans (gốc)",
+    "url": "https://cdn.freehihi.com/68529d0432f42.png",
+    "index": 11
+  },
+  {
+    "name": "Basic-1 (gốc)",
+    "url": "https://cdn.freehihi.com/68df473214183.png",
+    "index": 12
+  },
+  {
+    "name": "Loopy (gốc)",
+    "url": "https://cdn.freehihi.com/6852d220360a8.png",
+    "index": 13
+  },
+  {
+    "name": "HelloKitty (gốc)",
+    "url": "https://cdn.freehihi.com/68529ba92966b.png",
+    "index": 14
+  },
 ];
 
 // ============================================

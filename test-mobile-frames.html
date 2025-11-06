@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Test Mobile Frame Selector</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="css/frames.css">
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .test-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #ff1493;
+            margin-bottom: 20px;
+        }
+        
+        .btn-test {
+            background: linear-gradient(135deg, #ff1493 0%, #ff69b4 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .info {
+            background: #e7f3ff;
+            border: 2px solid #2196F3;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .info h3 {
+            margin-top: 0;
+            color: #2196F3;
+        }
+        
+        .device-info {
+            background: #f5f5f5;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>📱 Test Mobile Frame Selector</h1>
+        
+        <button class="btn-test" onclick="openFrameModal()">
+            <i class="fas fa-images"></i> Mở Frame Selector
+        </button>
+        
+        <div class="info">
+            <h3>✨ Tính năng mới:</h3>
+            <ul>
+                <li><strong>Trên Mobile:</strong> Preview nhỏ gọn ở trên, danh sách frame scroll được ở dưới</li>
+                <li><strong>Trên Desktop:</strong> Layout 2 cột (preview trái, frames phải)</li>
+                <li><strong>Landscape:</strong> Tự động chuyển sang layout 2 cột</li>
+                <li><strong>Smooth scroll</strong> với touch-friendly</li>
+            </ul>
+        </div>
+        
+        <div class="device-info">
+            <strong>Device Info:</strong><br>
+            Screen: <span id="screenSize"></span><br>
+            Viewport: <span id="viewportSize"></span><br>
+            Orientation: <span id="orientation"></span><br>
+            Touch: <span id="touchSupport"></span>
+        </div>
+    </div>
+
+    <!-- Frame Selector Modal -->
+    <div id="frameModal" class="frame-modal">
+        <div class="frame-modal-content">
+            <h3>
+                <i class="fas fa-images"></i> Chọn Khung Ảnh <i class="fas fa-sparkles"></i>
+            </h3>
+            
+            <div class="frame-selector-layout">
+                <!-- Left Column: Preview (Sticky) -->
+                <div class="frame-preview-column">
+                    <h4 style="font-size: 16px; color: #666; margin-bottom: 10px; text-align: center;">
+                        <i class="fas fa-eye"></i> Preview
+                    </h4>
+                    <div id="framePreview" class="frame-preview-container">
+                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='600'%3E%3Crect fill='%23f0f0f0' width='400' height='600'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='24' fill='%23999'%3EPreview%3C/text%3E%3C/svg%3E" alt="Preview">
+                    </div>
+                    
+                    <div class="frame-preview-actions">
+                        <button class="frame-modal-download-btn">
+                            <i class="fas fa-download"></i> Tải Ảnh
+                        </button>
+                        <button class="frame-modal-close-btn" onclick="closeFrameModal()">
+                            <i class="fas fa-check"></i> Xong
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Right Column: Frame Options (Scrollable) -->
+                <div class="frame-options-column">
+                    <h4 style="font-size: 16px; color: #666; margin-bottom: 10px; text-align: center;">
+                        <i class="fas fa-images"></i> Danh Sách Khung Ảnh
+                    </h4>
+                    <div class="frame-options" id="frameOptions">
+                        <!-- Generate demo frames -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Update device info
+        function updateDeviceInfo() {
+            document.getElementById('screenSize').textContent = `${screen.width}x${screen.height}`;
+            document.getElementById('viewportSize').textContent = `${window.innerWidth}x${window.innerHeight}`;
+            document.getElementById('orientation').textContent = window.innerWidth > window.innerHeight ? 'Landscape' : 'Portrait';
+            document.getElementById('touchSupport').textContent = 'ontouchstart' in window ? 'Yes ✅' : 'No ❌';
+        }
+        
+        updateDeviceInfo();
+        window.addEventListener('resize', updateDeviceInfo);
+        window.addEventListener('orientationchange', updateDeviceInfo);
+        
+        // Generate demo frames
+        function generateDemoFrames() {
+            const frameOptions = document.getElementById('frameOptions');
+            
+            // No frame option
+            const noFrameBtn = document.createElement('button');
+            noFrameBtn.className = 'frame-option-btn active';
+            noFrameBtn.innerHTML = `
+                <div class="frame-no-frame">
+                    <i class="fas fa-ban"></i>
+                </div>
+                <span>Không khung</span>
+            `;
+            noFrameBtn.onclick = () => selectFrame(noFrameBtn);
+            frameOptions.appendChild(noFrameBtn);
+            
+            // Generate 20 demo frames
+            for (let i = 1; i <= 20; i++) {
+                const btn = document.createElement('button');
+                btn.className = 'frame-option-btn';
+                btn.innerHTML = `
+                    <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='150'%3E%3Crect fill='%23${getRandomColor()}' width='200' height='150'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='20' fill='white'%3EFrame ${i}%3C/text%3E%3C/svg%3E" alt="Frame ${i}">
+                    <span>Khung ${i}</span>
+                `;
+                btn.onclick = () => selectFrame(btn);
+                frameOptions.appendChild(btn);
+            }
+        }
+        
+        function getRandomColor() {
+            const colors = ['ff69b4', 'ff1493', '667eea', '764ba2', '10b981', 'f59e0b', 'ef4444', '8b5cf6'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+        
+        function selectFrame(btn) {
+            document.querySelectorAll('.frame-option-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+        }
+        
+        function openFrameModal() {
+            document.getElementById('frameModal').classList.add('active');
+            generateDemoFrames();
+        }
+        
+        function closeFrameModal() {
+            document.getElementById('frameModal').classList.remove('active');
+        }
+        
+        // Close on background click
+        document.getElementById('frameModal').addEventListener('click', (e) => {
+            if (e.target.id === 'frameModal') {
+                closeFrameModal();
+            }
+        });
+    </script>
+</body>
+</html>

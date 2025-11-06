@@ -43,6 +43,7 @@
     display: flex;
     flex-direction: column;
     gap: 20px;
+    overflow: hidden; /* Quan trọng: ngăn scroll của modal chính */
 }
 
 @keyframes slideUp {
@@ -78,7 +79,8 @@
     grid-template-columns: 400px 1fr;
     gap: 20px;
     flex: 1;
-    overflow: hidden;
+    overflow: hidden; /* Chỉ cho scroll ở frame-options-column */
+    min-height: 0; /* Quan trọng cho flex children với overflow */
 }
 
 /* Left Column: Preview (Fixed) */
@@ -89,13 +91,17 @@
     position: sticky;
     top: 0;
     height: fit-content;
+    max-height: 100%; /* Đảm bảo không vượt quá container */
 }
 
 /* Right Column: Frame Options (Scrollable) */
 .frame-options-column {
     overflow-y: auto;
+    overflow-x: hidden;
     max-height: calc(90vh - 150px);
     padding-right: 10px;
+    -webkit-overflow-scrolling: touch; /* Smooth scroll trên iOS */
+    overscroll-behavior: contain; /* Ngăn scroll vượt quá */
 }
 
 /* Custom scrollbar for frame options */
@@ -330,44 +336,154 @@
 @media (max-width: 1024px) {
     .frame-selector-layout {
         grid-template-columns: 1fr;
+        gap: 15px;
     }
     
     .frame-preview-column {
         position: relative;
+        order: 1; /* Preview ở trên */
     }
     
     .frame-options-column {
-        max-height: 400px;
+        order: 2; /* Frame list ở dưới */
+        max-height: 50vh; /* Cho phép scroll */
+    }
+    
+    /* Preview nhỏ hơn trên tablet */
+    .frame-preview-container {
+        height: 300px;
     }
 }
 
 @media (max-width: 768px) {
+    .frame-modal {
+        padding: 10px;
+        align-items: flex-end; /* Căn modal xuống dưới */
+    }
+    
     .frame-modal-content {
-        padding: 20px;
-        max-width: 95%;
+        padding: 15px;
+        max-width: 100%;
+        max-height: 95vh;
+        border-radius: 16px 16px 0 0; /* Bo tròn chỉ ở trên */
+    }
+    
+    .frame-modal-content h3 {
+        font-size: 18px;
+        margin-bottom: 10px;
+    }
+    
+    .frame-modal-content h3 i {
+        font-size: 20px;
+    }
+    
+    /* Ẩn header của các column trên mobile để tiết kiệm không gian */
+    .frame-preview-column > h4,
+    .frame-options-column > h4 {
+        display: none;
+    }
+    
+    /* Preview compact trên mobile */
+    .frame-preview-container {
+        height: 200px; /* Preview nhỏ hơn */
+        border-radius: 8px;
+    }
+    
+    /* Frame options scrollable */
+    .frame-options-column {
+        max-height: calc(95vh - 380px); /* Trừ đi preview + header + buttons */
+        padding-right: 5px;
     }
     
     .frame-options {
-        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-        gap: 10px;
+        grid-template-columns: repeat(3, 1fr); /* 3 cột trên mobile */
+        gap: 8px;
     }
     
     .frame-option-btn {
-        padding: 10px;
+        padding: 8px;
     }
     
     .frame-option-btn img,
     .frame-no-frame {
-        height: 100px;
+        height: 80px;
     }
     
-    .frame-modal-content h3 {
-        font-size: 20px;
+    .frame-option-btn span {
+        font-size: 12px;
+    }
+    
+    /* Preview actions */
+    .frame-preview-actions {
+        flex-direction: column;
+        gap: 8px;
+        margin-top: 10px;
+    }
+    
+    .frame-modal-download-btn,
+    .frame-modal-close-btn {
+        padding: 12px 16px;
+        font-size: 14px;
     }
 }
 
 @media (max-width: 480px) {
+    .frame-modal-content {
+        padding: 12px;
+    }
+    
+    .frame-modal-content h3 {
+        font-size: 16px;
+    }
+    
+    /* Preview nhỏ nhất trên điện thoại nhỏ */
+    .frame-preview-container {
+        height: 180px;
+    }
+    
+    /* 2 cột cho màn hình rất nhỏ */
     .frame-options {
         grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+    }
+    
+    .frame-option-btn img,
+    .frame-no-frame {
+        height: 70px;
+    }
+    
+    .frame-options-column {
+        max-height: calc(95vh - 360px);
+    }
+}
+
+/* Landscape mode cho mobile */
+@media (max-width: 768px) and (orientation: landscape) {
+    .frame-selector-layout {
+        grid-template-columns: 300px 1fr; /* 2 cột trong landscape */
+    }
+    
+    .frame-preview-column {
+        order: 1;
+    }
+    
+    .frame-options-column {
+        order: 2;
+        max-height: calc(95vh - 140px);
+    }
+    
+    .frame-preview-container {
+        height: calc(95vh - 200px);
+    }
+    
+    .frame-preview-actions {
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .frame-modal-download-btn,
+    .frame-modal-close-btn {
+        padding: 8px 12px;
+        font-size: 12px;
     }
 }

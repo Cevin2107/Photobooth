@@ -3,7 +3,7 @@ import { startCamera, toggleFlip, stopCamera, resetPhotos } from './camera.js';
 import { singleCapture, autoCapture } from './capture.js';
 import { initFilterButtons } from './filters.js';
 import { initLayoutButtons } from './layouts.js';
-import { deletePhoto, openSwapModal, closeSwapModal, downloadPhotos } from './ui.js';
+import { deletePhoto, openSwapModal, closeSwapModal, downloadPhotos, uploadPhoto } from './ui.js';
 import { initCameraSelection, refreshCameraList } from './camera-selector.js';
 import { openFrameSelector, closeFrameSelector, loadExternalFrames, needsCacheRefresh, forceRedetectLayouts } from './frames/frames.js';
 import { loadDefaultFrames } from './default-frames.js';
@@ -90,6 +90,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         deletePhoto,
         openSwapModal,
         closeSwapModal,
+        uploadPhoto,
         openFrameSelector,
         closeFrameSelector,
         forceRedetectLayouts

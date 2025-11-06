@@ -212,6 +212,9 @@
                             <button class="swap-btn" onclick="openSwapModal(0)">
                                 <i class="fas fa-arrows-rotate"></i>
                             </button>
+                            <button class="upload-btn" onclick="uploadPhoto(0)">
+                                <i class="fas fa-upload"></i>
+                            </button>
                         </div>
                         <div class="photo-slot" data-slot="1">
                             <i class="fas fa-image text-pink-300 text-4xl"></i>
@@ -220,6 +223,9 @@
                             </button>
                             <button class="swap-btn" onclick="openSwapModal(1)">
                                 <i class="fas fa-arrows-rotate"></i>
+                            </button>
+                            <button class="upload-btn" onclick="uploadPhoto(1)">
+                                <i class="fas fa-upload"></i>
                             </button>
                         </div>
                         <div class="photo-slot" data-slot="2">
@@ -230,6 +236,9 @@
                             <button class="swap-btn" onclick="openSwapModal(2)">
                                 <i class="fas fa-arrows-rotate"></i>
                             </button>
+                            <button class="upload-btn" onclick="uploadPhoto(2)">
+                                <i class="fas fa-upload"></i>
+                            </button>
                         </div>
                         <div class="photo-slot" data-slot="3">
                             <i class="fas fa-image text-pink-300 text-4xl"></i>
@@ -238,6 +247,9 @@
                             </button>
                             <button class="swap-btn" onclick="openSwapModal(3)">
                                 <i class="fas fa-arrows-rotate"></i>
+                            </button>
+                            <button class="upload-btn" onclick="uploadPhoto(3)">
+                                <i class="fas fa-upload"></i>
                             </button>
                         </div>
                         <div class="photo-slot hidden" data-slot="4">
@@ -248,6 +260,9 @@
                             <button class="swap-btn" onclick="openSwapModal(4)">
                                 <i class="fas fa-arrows-rotate"></i>
                             </button>
+                            <button class="upload-btn" onclick="uploadPhoto(4)">
+                                <i class="fas fa-upload"></i>
+                            </button>
                         </div>
                         <div class="photo-slot hidden" data-slot="5">
                             <i class="fas fa-image text-pink-300 text-4xl"></i>
@@ -256,6 +271,9 @@
                             </button>
                             <button class="swap-btn" onclick="openSwapModal(5)">
                                 <i class="fas fa-arrows-rotate"></i>
+                            </button>
+                            <button class="upload-btn" onclick="uploadPhoto(5)">
+                                <i class="fas fa-upload"></i>
                             </button>
                         </div>
                     </div>
@@ -274,6 +292,9 @@
             <button class="btn-pink w-full" onclick="closeSwapModal()">Hủy</button>
         </div>
     </div>
+
+    <!-- Hidden file input for photo upload -->
+    <input type="file" id="photoUploadInput" accept="image/*" style="display: none;">
 
     <!-- Frame Selector Modal -->
     <div id="frameModal" class="frame-modal">

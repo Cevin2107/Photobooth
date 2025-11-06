@@ -302,6 +302,43 @@ body[data-layout="1x4"] #video {
     transform: scale(1.15) rotate(180deg);
 }
 
+.photo-slot .upload-btn {
+    position: absolute;
+    bottom: 8px;
+    left: 8px;
+    background: rgba(16, 185, 129, 0.95);
+    color: white;
+    border: 2px solid white;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    z-index: 5;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.photo-slot:hover .upload-btn {
+    display: flex;
+}
+
+.photo-slot .upload-btn:hover {
+    background: #059669;
+    transform: scale(1.15);
+}
+
+.photo-slot.has-photo .upload-btn {
+    display: none;
+}
+
+.photo-slot.has-photo:hover .upload-btn {
+    display: flex;
+}
+
 /* Swap Modal */
 .swap-modal {
     position: fixed;

@@ -69,6 +69,20 @@
             font-size: 14px;
             font-family: monospace;
         }
+        
+        .breakpoint-indicator {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        
+        .bp-desktop { background: #10b981; color: white; }
+        .bp-tablet { background: #f59e0b; color: white; }
+        .bp-mobile { background: #ef4444; color: white; }
+        .bp-small { background: #8b5cf6; color: white; }
     </style>
 </head>
 <body>
@@ -80,13 +94,32 @@
         </button>
         
         <div class="info">
-            <h3>✨ Tính năng mới:</h3>
+            <h3>✨ Layout mới cho Mobile:</h3>
             <ul>
-                <li><strong>Trên Mobile:</strong> Preview nhỏ gọn ở trên, danh sách frame scroll được ở dưới</li>
-                <li><strong>Trên Desktop:</strong> Layout 2 cột (preview trái, frames phải)</li>
-                <li><strong>Landscape:</strong> Tự động chuyển sang layout 2 cột</li>
-                <li><strong>Smooth scroll</strong> với touch-friendly</li>
+                <li><strong>📱 Mobile Portrait:</strong> Preview trái (45%), Frames phải (55%)</li>
+                <li><strong>📱 Mobile Small:</strong> Preview trái (40%), Frames phải (60%) - 1 cột</li>
+                <li><strong>📐 Landscape:</strong> Preview trái (35%), Frames phải (65%) - 3 cột</li>
+                <li><strong>💻 Desktop:</strong> Preview trái (400px), Frames phải (còn lại)</li>
+                <li><strong>Smooth scroll</strong> với thin scrollbar trên mobile</li>
             </ul>
+            
+            <div style="background: white; padding: 10px; border-radius: 8px; margin-top: 10px;">
+                <strong>📱 Mobile Layout:</strong>
+                <pre style="margin: 5px 0; font-size: 12px; color: #666;">
+┌─────────────────────────────┐
+│  PREVIEW  │   FRAMES        │
+│   45%     │    55%          │
+│           │  ┌────┬────┐    │
+│  [Image]  │  │ F1 │ F2 │    │
+│           │  ├────┼────┤    │
+│           │  │ F3 │ F4 │    │
+│           │  ├────┼────┤    │
+│ [Actions] │  │ F5 │ F6 │    │
+│           │  └────┴────┘    │
+│           │  ↓ Scroll ↓     │
+└─────────────────────────────┘
+                </pre>
+            </div>
         </div>
         
         <div class="device-info">
@@ -94,7 +127,8 @@
             Screen: <span id="screenSize"></span><br>
             Viewport: <span id="viewportSize"></span><br>
             Orientation: <span id="orientation"></span><br>
-            Touch: <span id="touchSupport"></span>
+            Touch: <span id="touchSupport"></span><br>
+            Layout: <span id="layoutMode"></span>
         </div>
     </div>
 
@@ -141,10 +175,31 @@
     <script>
         // Update device info
         function updateDeviceInfo() {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            
             document.getElementById('screenSize').textContent = `${screen.width}x${screen.height}`;
-            document.getElementById('viewportSize').textContent = `${window.innerWidth}x${window.innerHeight}`;
-            document.getElementById('orientation').textContent = window.innerWidth > window.innerHeight ? 'Landscape' : 'Portrait';
+            document.getElementById('viewportSize').textContent = `${width}x${height}`;
+            document.getElementById('orientation').textContent = width > height ? 'Landscape 📐' : 'Portrait 📱';
             document.getElementById('touchSupport').textContent = 'ontouchstart' in window ? 'Yes ✅' : 'No ❌';
+            
+            // Determine layout mode
+            let layoutMode = '';
+            if (width > 1024) {
+                layoutMode = '<span class="breakpoint-indicator bp-desktop">Desktop: 400px | auto</span>';
+            } else if (width > 768) {
+                layoutMode = '<span class="breakpoint-indicator bp-tablet">Tablet: 45% | 55%</span>';
+            } else if (width > 480) {
+                layoutMode = '<span class="breakpoint-indicator bp-mobile">Mobile: 45% | 55%</span>';
+            } else {
+                layoutMode = '<span class="breakpoint-indicator bp-small">Small: 40% | 60%</span>';
+            }
+            
+            if (width <= 768 && width > height) {
+                layoutMode = '<span class="breakpoint-indicator bp-mobile">Landscape: 35% | 65%</span>';
+            }
+            
+            document.getElementById('layoutMode').innerHTML = layoutMode;
         }
         
         updateDeviceInfo();

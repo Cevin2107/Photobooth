@@ -123,6 +123,13 @@
     background: #ff1493;
 }
 
+/* Mobile scrollbar - mỏng hơn */
+@media (max-width: 768px) {
+    .frame-options-column::-webkit-scrollbar {
+        width: 4px;
+    }
+}
+
 /* Frame Preview Section */
 .frame-preview-section {
     background: white;
@@ -335,116 +342,85 @@
 /* Responsive */
 @media (max-width: 1024px) {
     .frame-selector-layout {
-        grid-template-columns: 1fr;
-        gap: 15px;
+        grid-template-columns: 45% 55%; /* Chia đôi: 45% preview, 55% frames */
+        gap: 10px;
     }
     
     .frame-preview-column {
         position: relative;
-        order: 1; /* Preview ở trên */
     }
     
     .frame-options-column {
-        order: 2; /* Frame list ở dưới */
-        max-height: 50vh; /* Cho phép scroll */
+        max-height: calc(90vh - 140px);
     }
     
-    /* Preview nhỏ hơn trên tablet */
+    /* Preview vừa phải trên tablet */
     .frame-preview-container {
-        height: 300px;
+        height: calc(90vh - 250px);
     }
 }
 
 @media (max-width: 768px) {
     .frame-modal {
-        padding: 10px;
-        align-items: flex-end; /* Căn modal xuống dưới */
+        padding: 5px;
+        align-items: center;
     }
     
     .frame-modal-content {
-        padding: 15px;
+        padding: 12px;
         max-width: 100%;
         max-height: 95vh;
-        border-radius: 16px 16px 0 0; /* Bo tròn chỉ ở trên */
+        border-radius: 16px;
+        gap: 10px;
     }
     
     .frame-modal-content h3 {
-        font-size: 18px;
-        margin-bottom: 10px;
+        font-size: 16px;
+        margin-bottom: 5px;
     }
     
     .frame-modal-content h3 i {
-        font-size: 20px;
+        font-size: 18px;
     }
     
-    /* Ẩn header của các column trên mobile để tiết kiệm không gian */
+    /* Layout 2 cột trên mobile: Preview trái, Frames phải */
+    .frame-selector-layout {
+        grid-template-columns: 45% 55%; /* 45% preview, 55% frames */
+        gap: 8px;
+    }
+    
+    /* Ẩn header của các column trên mobile */
     .frame-preview-column > h4,
     .frame-options-column > h4 {
         display: none;
     }
     
-    /* Preview compact trên mobile */
-    .frame-preview-container {
-        height: 200px; /* Preview nhỏ hơn */
-        border-radius: 8px;
+    .frame-preview-column {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
     }
     
-    /* Frame options scrollable */
+    /* Preview chiếm hết chiều cao có thể */
+    .frame-preview-container {
+        height: calc(95vh - 180px);
+        border-radius: 8px;
+        flex: 1;
+    }
+    
+    /* Frame options scrollable ở bên phải */
     .frame-options-column {
-        max-height: calc(95vh - 380px); /* Trừ đi preview + header + buttons */
-        padding-right: 5px;
+        max-height: calc(95vh - 120px);
+        padding-right: 3px;
     }
     
     .frame-options {
-        grid-template-columns: repeat(3, 1fr); /* 3 cột trên mobile */
-        gap: 8px;
+        grid-template-columns: repeat(2, 1fr); /* 2 cột bên phải */
+        gap: 6px;
     }
     
     .frame-option-btn {
-        padding: 8px;
-    }
-    
-    .frame-option-btn img,
-    .frame-no-frame {
-        height: 80px;
-    }
-    
-    .frame-option-btn span {
-        font-size: 12px;
-    }
-    
-    /* Preview actions */
-    .frame-preview-actions {
-        flex-direction: column;
-        gap: 8px;
-        margin-top: 10px;
-    }
-    
-    .frame-modal-download-btn,
-    .frame-modal-close-btn {
-        padding: 12px 16px;
-        font-size: 14px;
-    }
-}
-
-@media (max-width: 480px) {
-    .frame-modal-content {
-        padding: 12px;
-    }
-    
-    .frame-modal-content h3 {
-        font-size: 16px;
-    }
-    
-    /* Preview nhỏ nhất trên điện thoại nhỏ */
-    .frame-preview-container {
-        height: 180px;
-    }
-    
-    /* 2 cột cho màn hình rất nhỏ */
-    .frame-options {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 6px;
+        padding: 6px;
     }
     
     .frame-option-btn img,
@@ -452,38 +428,105 @@
         height: 70px;
     }
     
+    .frame-option-btn span {
+        font-size: 11px;
+    }
+    
+    /* Preview actions dưới preview */
+    .frame-preview-actions {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        margin-top: 0;
+    }
+    
+    .frame-modal-download-btn,
+    .frame-modal-close-btn {
+        padding: 10px 12px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 480px) {
+    .frame-modal-content {
+        padding: 10px;
+    }
+    
+    .frame-modal-content h3 {
+        font-size: 14px;
+    }
+    
+    /* Layout 2 cột cố định: Preview trái 40%, Frames phải 60% */
+    .frame-selector-layout {
+        grid-template-columns: 40% 60%;
+        gap: 6px;
+    }
+    
+    /* Preview chiếm chiều cao tối đa */
+    .frame-preview-container {
+        height: calc(95vh - 160px);
+    }
+    
+    /* Frames chỉ 1 cột cho màn hình nhỏ */
+    .frame-options {
+        grid-template-columns: 1fr; /* 1 cột duy nhất */
+        gap: 5px;
+    }
+    
+    .frame-option-btn {
+        padding: 5px;
+    }
+    
+    .frame-option-btn img,
+    .frame-no-frame {
+        height: 60px;
+    }
+    
+    .frame-option-btn span {
+        font-size: 10px;
+    }
+    
     .frame-options-column {
-        max-height: calc(95vh - 360px);
+        max-height: calc(95vh - 110px);
+        padding-right: 2px;
+    }
+    
+    .frame-modal-download-btn,
+    .frame-modal-close-btn {
+        padding: 8px 10px;
+        font-size: 12px;
     }
 }
 
 /* Landscape mode cho mobile */
 @media (max-width: 768px) and (orientation: landscape) {
     .frame-selector-layout {
-        grid-template-columns: 300px 1fr; /* 2 cột trong landscape */
+        grid-template-columns: 35% 65%; /* Landscape: preview nhỏ hơn */
     }
     
     .frame-preview-column {
-        order: 1;
+        gap: 5px;
     }
     
     .frame-options-column {
-        order: 2;
-        max-height: calc(95vh - 140px);
+        max-height: calc(95vh - 100px);
     }
     
     .frame-preview-container {
-        height: calc(95vh - 200px);
+        height: calc(95vh - 150px);
+    }
+    
+    .frame-options {
+        grid-template-columns: repeat(3, 1fr); /* 3 cột trong landscape */
     }
     
     .frame-preview-actions {
-        flex-direction: column;
-        gap: 5px;
+        gap: 3px;
     }
     
     .frame-modal-download-btn,
     .frame-modal-close-btn {
-        padding: 8px 12px;
-        font-size: 12px;
+        padding: 6px 10px;
+        font-size: 11px;
     }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "photoxinh-photobooth",
+  "name": "BinCun-photobooth",
   "version": "1.0.0",
   "description": "📸 Ứng dụng chụp ảnh online với nhiều hiệu ứng và bộ lọc màu xinh xắn",
   "main": "index.html",
@@ -14,6 +14,6 @@
     "filters",
     "webrtc"
   ],
-  "author": "PhotoXinh Team",
+  "author": "Cevin",
   "license": "MIT"
 }
